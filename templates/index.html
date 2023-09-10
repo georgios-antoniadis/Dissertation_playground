@@ -1,0 +1,63 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Simple Website</title>
+</head>
+<body>
+    <h1>Title</h1>
+    <h2>Subtitle</h2>
+
+    <input type="file" accept=".csv, .txt">
+    <br><br>
+
+    <button onclick="callFunction('function1')">Function 1</button>
+    <button onclick="callFunction('function2')">Function 2</button>
+    <button onclick="callFunction('function3')">Function 3</button>
+    <button onclick="callFunction('function4')">Function 4</button>
+    
+    <br><br>
+    <button onclick="clearAdditionalElements()">Clear results</button>
+    
+    <br><br>
+    <button onclick="exportResults()">Export Results</button>
+
+    <br><br>
+    <hr>
+    <div id="result"></div>
+
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        // Function that communicates with python
+        function callFunction(functionName) {
+            console.log("Calling function: " + functionName);
+            $.ajax({
+                type: 'POST',
+                url: '/' + functionName,
+                success: function(response) {
+                    console.log("Response: " + response.result);
+                    document.getElementById('result').innerHTML += response.result + '<br>';
+                },
+                error: function(error) {
+                    console.error("Error: " + JSON.stringify(error));
+                }
+            });
+        }
+
+        // TODO 
+        function exportResults() {
+            // Implement export functionality here if needed
+        }
+
+        // Returning to the original state
+        function clearAdditionalElements() {
+            // Get a reference to the result div
+            var resultDiv = document.getElementById('result');
+            
+            // Clear its content
+            resultDiv.innerHTML = '';
+        }
+    </script>
+</body>
+</html>
