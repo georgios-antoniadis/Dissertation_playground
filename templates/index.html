@@ -6,29 +6,91 @@
     <title>Simple Website</title>
 </head>
 <body>
-    <h1>Title</h1>
-    <h2>Subtitle</h2>
+    <h1>Traditional vs ML methods in Timeseries Forecasting</h1>
+    <h2>A playground to explore the different available models and pick which one suits best for your application</h2>
+    <hr>
 
-    <input type="file" accept=".csv, .txt">
-    <br><br>
+    <!-- <input type="file" accept=".csv, .txt"> -->
+    <h3>Upload a snapshot of your dataset</h3>
+    <form id="upload-form" method="POST" enctype="multipart/form-data">
+        <input type="file" name="file" accept=".csv, .txt">
+        <input type="submit" value="Upload File">
+    </form>
 
-    <button onclick="callFunction('function1')">Function 1</button>
-    <button onclick="callFunction('function2')">Function 2</button>
-    <button onclick="callFunction('function3')">Function 3</button>
-    <button onclick="callFunction('function4')">Function 4</button>
+    <div id="upload-status"></div>
     
     <br><br>
+
+    <h3>Experiment</h3>
+    <button onclick="callFunction('function1')">How many lines</button>
+    <button onclick="callFunction('function2')">Traditional methods</button>
+    <button onclick="callFunction('function3')">Machine Learning methods</button>
+    <button onclick="callFunction('function4')">Hybrid methods</button>
+    <button onclick="callFunction('function5')">All methods</button>
+    
+    <br><br>
+    <!-- Modal -->
+    <button class="button open-button">Read More</button>
+    <dialog class="modal", id="modal">
+        <h2>The models</h2>
+        <h3>Traditional</h3>
+        <p>ARIMA</p>
+        <h3>ML</h3>
+        <p>Machine Learning Models</p>
+        <h3>Hybrid</h3>
+        <p>Hybrid Models</p>
+        <button class="button close-button">Close</button>
+    </dialog>
+    
+    <br><br>
+    <h3>Results</h3>
     <button onclick="clearAdditionalElements()">Clear results</button>
     
     <br><br>
-    <button onclick="exportResults()">Export Results</button>
-
+    <button onclick="exportResults('exportResults')">Export Results</button>
+    <div id="export"></div>
     <br><br>
     <hr>
     <div id="result"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
     <script>
+
+        // Event listener for the form submission
+        document.getElementById('upload-form').addEventListener('submit', function (e) {
+
+            var formData = new FormData(this); // Create a FormData object
+            e.preventDefault(); // Prevent the form from submitting normally
+            // Send an AJAX request to handle the file upload
+            $.ajax({
+                type: 'POST',
+                url: '/upload-form',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function (response) {
+                    // Update the upload status div with the response message
+                    document.getElementById('upload-status').innerHTML = response.message;
+                },
+                error: function (error) {
+                    console.error("Error: " + JSON.stringify(error));
+                }
+            });
+        });
+
+        // Read more button
+        const modal = document.querySelector('#modal');
+        const openModal = document.querySelector('.open-button');
+        const closeModal = document.querySelector('.close-button');
+
+        openModal.addEventListener('click',()=>{
+            modal.showModal();
+        })
+
+        closeModal.addEventListener('click',()=>{
+            modal.close();
+        })
+
         // Function that communicates with python
         function callFunction(functionName) {
             console.log("Calling function: " + functionName);
@@ -45,9 +107,37 @@
             });
         }
 
+         // Function that communicates with python
+         function uploadFile(functionName) {
+            console.log("Calling function: " + functionName);
+            $.ajax({
+                type: 'POST',
+                url: '/' + functionName,
+                success: function(response) {
+                    console.log("Response: " + response.result);
+                    document.getElementById('upload-status').innerHTML += response.result + '<br>';
+                },
+                error: function(error) {
+                    console.error("Error: " + JSON.stringify(error));
+                }
+            });
+        }
+
         // TODO 
-        function exportResults() {
+        function exportResults(functionName) {
             // Implement export functionality here if needed
+            console.log("Calling function: " + functionName);
+            $.ajax({
+                type: 'POST',
+                url: '/' + functionName,
+                success: function(response) {
+                    console.log("Response: " + response.result);
+                    document.getElementById('export').innerHTML += response.result + '<br>';
+                },
+                error: function(error) {
+                    console.error("Error: " + JSON.stringify(error));
+                }
+            });
         }
 
         // Returning to the original state
@@ -58,6 +148,9 @@
             // Clear its content
             resultDiv.innerHTML = '';
         }
+
+        
+
     </script>
 </body>
 </html>
