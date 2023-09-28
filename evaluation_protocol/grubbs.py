@@ -24,4 +24,5 @@ def grubbs_score(predicted, test_points, alpha):
   # alpha == confidence level, e.g. alpha = 0.05 -> Confidence level = 95%
     model_grubbs = grubbs(predicted, alpha)
     test_data_grubbs = grubbs(test_points, alpha)
-    grubbs_score = test_data_grubbs - model_grubbs # The less the score the better the result! 
+    grubbs_score = test_data_grubbs - model_grubbs # The less the score the better the result!
+    return grubbs_score 
