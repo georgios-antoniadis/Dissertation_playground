@@ -1,6 +1,7 @@
 import numpy as np
 
 def random_walk(input_data, test_set_length):
+    print(input_data[0])
     last_value = input_data[-1]
     current_value = last_value
     noise_stddev = 0.1 * (max(input_data) - min(input_data))  # Adjust as needed
