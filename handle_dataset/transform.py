@@ -35,21 +35,21 @@ def create_df_with_datetimes(df, counter):
     new_row = df.loc[counter]
     new_row_df = pd.DataFrame(new_row)
     new_row_df.reset_index(inplace=True)
-    new_row_df.columns = ['datetime','target']
+    new_row_df.columns = ['timestamp','target']
 
     # To reduce the number of rows and eliminate overflow when calculating future values
     new_row_df = new_row_df.dropna()
     new_row_df = new_row_df[1:]
 
     # To know how many years to go forward
-    number_of_rows = len(new_row_df['datetime'])
+    number_of_rows = len(new_row_df['timestamp'])
 
     dates_list = create_datetime_list(starting_date=starting_date, desired_length=number_of_rows)
 
     number_of_dates = len(dates_list)
     # Replace V2,V3,V4 etc. with dates!
     for i in range(number_of_dates):
-        new_row_df['datetime'][i] = dates_list[i]
+        new_row_df['timestamp'][i] = dates_list[i]
 
 
     # print(f'New dataframe! \n {new_row_df}')

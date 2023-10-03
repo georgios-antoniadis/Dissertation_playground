@@ -1,15 +1,15 @@
 from statsmodels.tsa.arima.model import ARIMA
 
-def arima_model(train_df,forecast_periods):
+def arima_model(series,forecast_periods):
     p = 1
     d = 1
     q =1
-    train_list = train_df.loc[0][1:].dropna().tolist()
-    arima_model = ARIMA(train_list, order=(p,d,q))
+    # train_list = train_df.loc[0][1:].dropna().tolist()
+    arima_model = ARIMA(series, order=(p,d,q))
     arima_results = arima_model.fit()
 
     fitted_values = arima_results.fittedvalues
 
     future_predictions = arima_results.get_forecast(steps=forecast_periods)
 
-    return future_predictions
+    return future_predictions.predicted_mean
