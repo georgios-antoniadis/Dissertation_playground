@@ -5,23 +5,30 @@ from sklearn.model_selection import TimeSeriesSplit
 from sklearn.metrics import mean_squared_error
 from sklearn.preprocessing import StandardScaler
 
-def lightgbm(df):
+def lightgbm(train_df, test_df, leaves):
     # Assuming you have a pandas DataFrame with a 'timestamp' and 'target' column
     # Load your timeseries data into a pandas DataFrame (replace 'your_data.csv' with your actual file)
-    df['timestamp'] = pd.to_datetime(df['timestamp'], format="%d-%m-%y %H:%M")
-    df = df.set_index('timestamp')
+    train_df['timestamp'] = pd.to_datetime(train_df['timestamp'], format="%d-%m-%y %H:%M")
+    train_df = train_df.set_index('timestamp')
+
+    test_df['timestamp'] = pd.to_datetime(test_df['timestamp'], format="%d-%m-%y %H:%M")
+    # test_df = test_df.set_index('timestamp')
+
 
     # Create lag features (you can customize the number of lags)
     for i in range(1, 4):
-        df[f'lag_{i}'] = df['target'].shift(i)
+        train_df[f'lag_{i}'] = train_df['target'].shift(i)
 
-    df = df.dropna()
+    train_df = train_df.dropna()
 
     # Split the data into train and test sets using TimeSeriesSplit
-    tscv = TimeSeriesSplit(n_splits=5)
-    for train_index, test_index in tscv.split(df):
-        train_data = df.iloc[train_index]
-        test_data = df.iloc[test_index]
+    # tscv = TimeSeriesSplit(n_splits=5)
+    # for train_index, test_index in tscv.split(train_df):
+    #     train_data = train_df.iloc[train_index]
+    #     test_data = train_df.iloc[test_index]
+    
+    train_data = train_df 
+    test_data = test_df
 
     # Standardize features
     scaler = StandardScaler()
@@ -40,7 +47,7 @@ def lightgbm(df):
         'objective': 'regression',
         'metric': 'mse',
         'boosting_type': 'gbdt',
-        # 'num_leaves': 31,
+        'num_leaves': leaves,
         'num_leaves': 5,
         'learning_rate': 0.05,
         'feature_fraction': 0.9
@@ -56,3 +63,5 @@ def lightgbm(df):
     # Evaluate the model
     mse = mean_squared_error(y_test, y_pred)
     print(f'Mean Squared Error: {mse}')
+
+    return y_pred
