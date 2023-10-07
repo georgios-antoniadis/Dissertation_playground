@@ -7,7 +7,7 @@ def grubbs(data, alpha):
 
   mean = np.mean(data)
   std_dev = np.std(data)
-  z_scores = np.abs((data-mean)/std_dev)
+  z_scores = np.abs((data-mean)/(np.abs(std_dev)))
   max_z_score = max(z_scores)
   length_of_data = len(data)
   critical_value = stats.t.ppf(1 - alpha / (2*length_of_data), length_of_data -2)

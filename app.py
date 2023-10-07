@@ -39,6 +39,42 @@ test_file = 'Dataset/Yearly-test.csv'
 # For grubbs score 
 alpha = 0.05
 
+# Printing the evaluation protocol string
+def create_eval_string(predicted_dictionary, scores_dict, real, method_type):
+    created_string = f'{method_type}\n'
+    created_string += '- ' * len(method_type) + '\n'
+    for key in predicted_dictionary:
+        predicted = predicted_dictionary[key]
+        grubbs_test_score = grubbs_score(predicted, real, alpha)
+        smape_score = smape(real, predicted)
+        shape_similarity_score = dtw(predicted, real)
+        mape_score = mape(real, predicted)
+
+        # MAPE | sMAPE | Grubbs | tShape similarity
+        scores_dict[key].append(round(mape_score,2))
+        scores_dict[key].append(round(smape_score,2))
+        scores_dict[key].append(round(grubbs_test_score))
+        scores_dict[key].append(round(shape_similarity_score))
+    
+    created_string += eval_string(score_dict=scores_dict)
+
+    return created_string
+
+# Creating data to test the functions
+def import_test_data():
+
+    train_df = pd.read_csv(train_file)
+    test_df = pd.read_csv(test_file)
+
+    train = create_df_with_datetimes(train_df, 0)
+    test = create_df_with_datetimes(test_df, 0)
+
+    return train, test
+
+
+
+
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -84,6 +120,7 @@ def function1():
     # return render_template('index.html', result=result)
 
 
+# Traditional methods route
 @app.route('/traditional_models', methods=['POST'])
 def traditional_models():
 
@@ -92,92 +129,89 @@ def traditional_models():
         'theta': []
     }
 
-    train = pd.read_csv(train_file)
-    test = pd.read_csv(test_file)
+    train, test = import_test_data()
 
-    first_timeseries_train = create_df_with_datetimes(train, 0)
-    first_timeseries_test = create_df_with_datetimes(test, 0)
+    target_column_name = test.columns[1]
+    real = test[target_column_name]
 
-    target_column_name = first_timeseries_test.columns[1]
-    real = first_timeseries_test[target_column_name]
-
-    arima_forecasts = arima_model(series=first_timeseries_train['target'].astype(float), forecast_periods=6)
-    theta_forecasts = theta_model_forecast(series=first_timeseries_train['target'], h=6)
+    # Forecast periods!! 
+    arima_forecasts = arima_model(series=train['target'].astype(float), forecast_periods=6)
+    theta_forecasts = theta_model_forecast(series=train['target'], h=len(test))
 
     predicted_dictionary = {"arima": arima_forecasts,
                         "theta": theta_forecasts}
 
-    for key in predicted_dictionary:
-        predicted = predicted_dictionary[key]
-        grubbs_test_score = grubbs_score(predicted, real, alpha)
-        smape_score = smape(real, predicted)
-        shape_similarity_score = dtw(predicted, real)
-        mape_score = mape(real, predicted)
 
-        # MAPE | sMAPE | Grubbs | tShape similarity
-        scores_dict[key].append(round(mape_score,2))
-        scores_dict[key].append(round(smape_score,2))
-        scores_dict[key].append(round(grubbs_test_score))
-        scores_dict[key].append(round(shape_similarity_score))
+    result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
 
-
-    result = eval_string(scores_dict)
-    print(result)
+    # Debugging
+    # result = eval_string(scores_dict)
+    # print(result)
     # return jsonify({'result': result})
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
-
-
+# ML models route
 @app.route('/ml_models', methods=['POST'])
-def function3():
+def ml_models():
 
     scores_dict = {
         'prophet': []
     }
 
-    train = pd.read_csv(train_file)
-    test = pd.read_csv(test_file)
+    train, test = import_test_data()
 
-    first_timeseries_train = create_df_with_datetimes(train, 0)
-    first_timeseries_test = create_df_with_datetimes(test, 0)
+    target_column_name = test.columns[1]
+    real = test[target_column_name]
 
-    target_column_name = first_timeseries_test.columns[1]
-    real = first_timeseries_test[target_column_name]
-
-    prophet_forecasts = prophet_model(train=first_timeseries_train, test=first_timeseries_test)
+    prophet_forecasts = prophet_model(train=train, test=test)
 
 
     predicted_dictionary = {"prophet": prophet_forecasts
                             }
 
-    for key in predicted_dictionary:
-        predicted = predicted_dictionary[key]
-        grubbs_test_score = grubbs_score(predicted, real, alpha)
-        smape_score = smape(real, predicted)
-        shape_similarity_score = dtw(predicted, real)
-        mape_score = mape(real, predicted)
+    result = create_eval_string(predicted_dictionary, scores_dict, real, 'Machine Learning')
 
-        # MAPE | sMAPE | Grubbs | tShape similarity
-        scores_dict[key].append(round(mape_score,2))
-        scores_dict[key].append(round(smape_score,2))
-        scores_dict[key].append(round(grubbs_test_score))
-        scores_dict[key].append(round(shape_similarity_score))
-
-
-    result = eval_string(scores_dict)
-    print(result)
+    # Debugging
+    # result = eval_string(scores_dict)
+    # print(result)
     # return jsonify({'result': result})
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
-    result = "Function 3"
-    return jsonify({'result': result})
 
-@app.route('/function4', methods=['POST'])
-def function4():
-    result = "Function 4"
-    return jsonify({'result': result})
+@app.route('/naive_methods', methods=['POST'])
+def naive_methods():
+
+    train, test = import_test_data()
+
+    target_column_name = test.columns[1]
+    real = test[target_column_name]
+
+    last_value_forecasts = predict_last_value(train['target'].tolist(), len(test))
+    mean_naive_forecasts = mean_naive(train['target'].tolist(), len(test))
+    random_walk_forecasts = random_walk(train['target'].tolist(), len(test))
+    
+    predicted_dictionary = {
+        "last_value": last_value_forecasts,
+        "mean_naive": mean_naive_forecasts,
+        "random_walk": random_walk_forecasts
+                            }
+
+    scores_dict = {
+        'last_value': [],
+        'mean_naive': [],
+        'random_walk': []
+    }
+
+
+    result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
+    # Debugging
+    # print(result)
+    # return jsonify({'result': result})
+    return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
+
+
 
 @app.route('/exportResults', methods=['POST'])
 def exportResults():
