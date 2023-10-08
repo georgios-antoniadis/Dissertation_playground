@@ -56,7 +56,7 @@ def create_eval_string(predicted_dictionary, scores_dict, real, method_type):
         scores_dict[key].append(round(grubbs_test_score))
         scores_dict[key].append(round(shape_similarity_score))
     
-    created_string += eval_string(score_dict=scores_dict)
+    created_string += eval_string(score_dict=scores_dict, method=method_type)
 
     return created_string
 

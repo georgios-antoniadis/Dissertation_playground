@@ -1,0 +1,27 @@
+/* styles.css */
+
+/* Select the elements you want to style by their class or tag */
+h1 {
+    /* Set the desired font-family */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 42px;
+    font-style: bold;
+    /* Align text to the middle */
+    text-align: center;
+  }
+  
+h2 {
+    /* Set the desired font-family */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 21px;
+    font-style: italic;
+    /* Align text to the middle */
+    text-align: center;
+  }
+
+h3 {
+    /* Set the desired font-family */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 16px;
+    font-style: normal;
+  }
