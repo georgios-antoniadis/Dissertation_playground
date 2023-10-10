@@ -72,7 +72,30 @@ def import_test_data():
     return train, test
 
 
+def confirm_dataset_structure(uploaded_file_path):
+    file_df = pd.read_csv(uploaded_file_path)
+    flag = False
+    if file_df.columns == ['timestamp','target']:
+        flag = True
+    else:
+        flag = False
+    
+    return flag
 
+def get_file_from_uploads():
+    uploaded_file_path = ''
+    for file in os.listdir('uploads'):
+        if ".csv" in file:
+            print(f"Found uploaded file! {file}")
+            uploaded_file_path = os.path.join('uploads',file)
+            continue
+    
+    if confirm_dataset_structure(uploaded_file_path):
+        print("File can be used")
+    else:
+        uploaded_file_path == 'File does not contain the correct columns'
+
+    return uploaded_file_path
 
 
 @app.route('/')
