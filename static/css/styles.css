@@ -4,19 +4,23 @@
 h1 {
     /* Set the desired font-family */
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 42px;
+    font-size: 35px;
     font-style: bold;
     /* Align text to the middle */
     text-align: center;
+    padding-left: 25%;
+    padding-right: 25%;
   }
   
 h2 {
     /* Set the desired font-family */
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
-    font-size: 21px;
+    font-size: 18px;
     font-style: italic;
     /* Align text to the middle */
     text-align: center;
+    padding-left: 25%;
+    padding-right: 25%;
   }
 
 h3 {
@@ -24,4 +28,37 @@ h3 {
     font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
     font-size: 16px;
     font-style: normal;
+    padding-left: 25%;
+    padding-right: 25%;
   }
+
+
+button {
+  margin-left: 25%;
+  margin-right: 25%;
+}
+
+button.model {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
+#Model_buttons {
+  padding-left: 25%;
+}
+
+form {
+  margin-left: 25%;
+  margin-right: 25%;
+}
+
+hr {
+  margin-left: 25%;
+  margin-right: 25%;
+}
+
+#result {
+  margin-left: 25%;
+  margin-right: 25%;
+}
+

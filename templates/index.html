@@ -22,15 +22,17 @@
     
     <br><br>
 
-    <h3>Experiment</h3>
-    <button onclick="callFunction('function1')">How many lines</button>
-    <button onclick="callFunction('traditional_models')">Traditional methods</button>
-    <button onclick="callFunction('ml_models')">Machine Learning models</button>
-    <button onclick="callFunction('naive_methods')">Naive methods</button>
-    
+    <h3 class="Model_title">Experiment</h3>
+    <div id="Model_buttons">
+    <button class='model' id='model_button' onclick="callFunction('function1')">How many lines</button>
+    <button class='model' id='model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
+    <button class='model' id='model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
+    <button class='model' id='model_button' onclick="callFunction('naive_methods')">Naive methods</button>
+    </div>
+
     <br><br>
     <!-- Model Help Modal -->
-    <button class="button open-button">Read More</button>
+    <button class="button open-button" id="hover-element">Read More</button>
     <dialog class="modal", id="modal">
         <h2>The models</h2>
         <h3>Traditional</h3>
@@ -78,6 +80,15 @@
                 }
             });
         });
+
+        document.getElementById('model_button').addEventListener('mouseover', function() {
+            // Fetch the contents of "sample.txt" and set the title attribute
+            const currentContent = document.getElementById(elementId).textContent;
+            const buttonId = document.getElementsByClassName(elementId).elementId;
+            fetchAndSetTitle(currentContent, buttonId);
+        });
+
+
 
         // Read more button
         const modal = document.querySelector('#modal');
@@ -149,6 +160,16 @@
             // Clear its content
             resultDiv.innerHTML = '';
         }
+
+
+        
+
+        fetch("sample.txt")
+        .then(response => response.text())
+        .then(data => {
+            // Set the title attribute using the fetched data
+            document.getElementById('hover-element').title = data;
+        })
 
         
 
