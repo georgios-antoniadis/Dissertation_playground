@@ -4,7 +4,6 @@ import numpy as np
 
 def grubbs(data, alpha):
   outliers = 0
-
   mean = np.mean(data)
   std_dev = np.std(data)
   z_scores = np.abs((data-mean)/(np.abs(std_dev)))

@@ -47,7 +47,11 @@ def create_eval_string(predicted_dictionary, scores_dict, real, method_type):
     created_string += '- ' * len(method_type) + '\n'
     for key in predicted_dictionary:
         predicted = predicted_dictionary[key]
-        grubbs_test_score = grubbs_score(predicted, real, alpha)
+        # Grubbs score makes no sense for methods that predict the last value or the mean
+        if method_type == 'Naive Methods' and key != 'random_walk':
+            grubbs_test_score = 0
+        else:
+            grubbs_test_score = grubbs_score(predicted, real, alpha)
         smape_score = smape(real, predicted)
         shape_similarity_score = dtw(predicted, real)
         mape_score = mape(real, predicted)
