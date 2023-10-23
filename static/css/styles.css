@@ -47,6 +47,14 @@ button.model {
   padding-left: 25%;
 }
 
+#upload-status {
+  font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+  font-size: 16px;
+  padding-top: 0.5%;
+  padding-left: 25%;
+  padding-right: 25%;
+}
+
 form {
   margin-left: 25%;
   margin-right: 25%;

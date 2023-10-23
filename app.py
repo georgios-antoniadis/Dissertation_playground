@@ -36,6 +36,8 @@ export = 'This is the export file'
 train_file = 'Dataset/Yearly-train.csv'
 test_file = 'Dataset/Yearly-test.csv'
 
+user_dataset_file = ''
+
 # For grubbs score 
 alpha = 0.05
 
@@ -98,6 +100,18 @@ def get_file_from_uploads():
     return uploaded_file_path
 
 
+def split_user_data():
+
+    user_data_df = pd.read_csv(user_dataset_file)
+
+    # 70-30 split with no fancy means
+    split_index = int(0.7 * len(user_data_df))
+
+    train = user_data_df[:split_index]
+    test = user_data_df[split_index:]
+
+    return train, test
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -122,7 +136,8 @@ def upload_file():
 
     # Save the uploaded file to a specific location
     file.save(os.path.join('uploads', file.filename))
-
+    global user_dataset_file 
+    user_dataset_file = os.path.join('uploads', file.filename)
     return jsonify({'message': 'File uploaded successfully'})
 
 def allowed_file(filename):
@@ -152,13 +167,22 @@ def traditional_models():
         'theta': []
     }
 
-    train, test = import_test_data()
+    print(user_dataset_file)
+
+    if user_dataset_file == '':
+
+        train, test = import_test_data()
+    else:
+        train, test = split_user_data()
+        # Debugging
+        # print("Found user data!")
+        # print(f"Length of train: {len(train)} and test: {len(test)}")
 
     target_column_name = test.columns[1]
     real = test[target_column_name]
 
     # Forecast periods!! 
-    arima_forecasts = arima_model(series=train['target'].astype(float), forecast_periods=6)
+    arima_forecasts = arima_model(series=train['target'].astype(float), forecast_periods=len(test))
     theta_forecasts = theta_model_forecast(series=train['target'], h=len(test))
 
     predicted_dictionary = {"arima": arima_forecasts,
@@ -182,7 +206,12 @@ def ml_models():
         'prophet': []
     }
 
-    train, test = import_test_data()
+    if user_dataset_file == '':
+
+        train, test = import_test_data()
+    
+    else:
+        train, test = split_user_data()
 
     target_column_name = test.columns[1]
     real = test[target_column_name]
@@ -206,7 +235,12 @@ def ml_models():
 @app.route('/naive_methods', methods=['POST'])
 def naive_methods():
 
-    train, test = import_test_data()
+    if user_dataset_file == '':
+
+        train, test = import_test_data()
+    
+    else:
+        train, test = split_user_data()
 
     target_column_name = test.columns[1]
     real = test[target_column_name]

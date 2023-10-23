@@ -13,7 +13,7 @@ def grubbs(data, alpha):
   critical_value = stats.t.ppf(1 - alpha / (2*length_of_data), length_of_data -2)
   if max_z_score > critical_value:
     outlier_index = np.argmax(z_scores)
-    outlier_value = data[outlier_index]
+    # outlier_value = data[outlier_index]
     # print(f"Outlier detected: {outlier_value} at index {outlier_index}")
     outliers += 1
   else:
