@@ -1,0 +1,44 @@
+Category,sMAPE,MAPE,Shape_Similarity,Grubbs
+Overall,37.92,43.67,13202.78,0.0
+Last Value_overall,17.51,16.34,6041.5,0.0
+Mean Value_overall,48.36,56.09,17730.61,0.0
+Random Walk_overall,21.19,19.86,6651.14,0.0
+Arima_overall,17.41,15.24,5236.65,0.0
+Theta_overall,75.4,99.91,26278.36,0.0
+Prophet_overall,47.63,54.57,17278.4,0.0
+Last Value_Macro,17.22,16.62,5983.41,0.0
+Last Value_Micro,15.32,13.99,5398.13,0.0
+Last Value_Demographic,11.37,11.65,3446.93,0.0
+Last Value_Industry,19.42,19.01,6479.65,0.0
+Last Value_Finance,20.0,17.86,6952.89,0.0
+Last Value_Other,16.48,16.02,5787.84,0.0
+Mean Value_Macro,46.9,53.96,17107.12,0.0
+Mean Value_Micro,49.84,64.06,19181.62,0.0
+Mean Value_Demographic,37.94,38.25,10138.24,0.0
+Mean Value_Industry,52.52,49.73,15860.48,0.0
+Mean Value_Finance,48.63,58.23,19560.79,0.0
+Mean Value_Other,40.3,44.32,14676.94,0.0
+Random Walk_Macro,20.43,20.14,6536.43,0.0
+Random Walk_Micro,18.3,17.16,5958.12,0.0
+Random Walk_Demographic,15.27,15.69,4140.38,0.0
+Random Walk_Industry,25.74,23.42,7115.04,0.0
+Random Walk_Finance,23.04,21.14,7633.47,0.0
+Random Walk_Other,20.68,19.48,6313.56,0.0
+Arima_Macro,17.34,15.75,5296.68,0.0
+Arima_Micro,15.11,12.64,4349.26,0.0
+Arima_Demographic,10.73,10.78,3055.15,0.0
+Arima_Industry,20.4,18.82,6115.35,0.0
+Arima_Finance,19.38,16.24,5980.47,0.0
+Arima_Other,16.38,15.28,5096.44,0.0
+Theta_Macro,70.86,94.74,25212.33,0.0
+Theta_Micro,78.65,118.69,28235.62,0.0
+Theta_Demographic,73.28,72.84,18940.57,0.0
+Theta_Industry,85.93,87.38,24410.38,0.0
+Theta_Finance,72.23,100.61,28259.16,0.0
+Theta_Other,59.54,74.64,20919.35,0.0
+Prophet_Macro,45.58,53.03,15871.09,0.0
+Prophet_Micro,49.03,61.99,19190.6,0.0
+Prophet_Demographic,46.78,57.01,11460.87,0.0
+Prophet_Industry,55.14,52.1,17929.05,0.0
+Prophet_Finance,46.44,52.48,18036.57,0.0
+Prophet_Other,31.07,36.53,10773.4,0.0
