@@ -28,6 +28,14 @@ def create_df_with_datetimes(df, counter):
     desired_row= info_df[info_df['M4id'] == timeseries_name]
     starting_date = info_df.loc[desired_row.index[0],'StartingDate']
     
+    current_format = "%Y-%m-%d %H:%M:%S"
+    desired_format = "%d-%m-%y %H:%M"
+    try:
+        dt_obj = datetime.strptime(starting_date, desired_format)
+    except ValueError:
+        dt_obj = datetime.strptime(starting_date, current_format)
+        starting_date = dt_obj.strftime(desired_format)
+
     # starting_date = info_df[info_df['M4id']==timeseries_name]['StartingDate']
     
     # print(starting_date)
