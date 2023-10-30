@@ -25,9 +25,9 @@
     <h3 class="Model_title">Experiment</h3>
     <div id="Model_buttons">
     <button class='model' id='model_button' onclick="callFunction('function1')">How many lines</button>
-    <button class='model' id='model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
-    <button class='model' id='model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
-    <button class='model' id='model_button' onclick="callFunction('naive_methods')">Naive methods</button>
+    <button class='model' id='traditional_methods' onclick="callFunction('traditional_models')">Traditional methods</button>
+    <button class='model' id='ml_models' onclick="callFunction('ml_models')">Machine Learning models</button>
+    <button class='model' id='naive_methods' onclick="callFunction('naive_methods')">Naive methods</button>
     </div>
 
     <br><br>
@@ -162,13 +162,25 @@
         }
 
 
-        
-
-        fetch("sample.txt")
+        fetch("static/ml_models.txt")
         .then(response => response.text())
         .then(data => {
             // Set the title attribute using the fetched data
-            document.getElementById('hover-element').title = data;
+            document.getElementById('ml_models').title = data;
+        })
+
+        fetch("static/traditional_methods.txt")
+        .then(response => response.text())
+        .then(data => {
+            // Set the title attribute using the fetched data
+            document.getElementById('traditional_methods').title = data;
+        })
+
+        fetch("static/naive_methods.txt")
+        .then(response => response.text())
+        .then(data => {
+            // Set the title attribute using the fetched data
+            document.getElementById('naive_methods').title = data;
         })
 
         

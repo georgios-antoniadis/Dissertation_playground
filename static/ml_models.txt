@@ -1,0 +1,1 @@
+Prophet: A highly versitile model developed by Facebook engineers capable of outperforming most of the traditional, optimized, models

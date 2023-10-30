@@ -3,6 +3,12 @@ import os
 from tkinter import *
 import pandas as pd
 
+# serving the application 
+from waitress import serve
+
+# allowing other origins
+from flask_cors import CORS
+
 # import filedialog module
 from tkinter import filedialog
 
@@ -29,6 +35,7 @@ from traditional_models.theta_model import theta_model_forecast
 from handle_dataset.transform import create_df_with_datetimes
 
 app = Flask(__name__)
+CORS(app, origins=['/templates','/templates/Hover_text'])
 
 result = ''
 export = 'This is the export file'
@@ -283,4 +290,4 @@ def exportResults():
 
 
 if __name__ == '__main__':
-    app.run(debug=True)
+    serve(app, host='0.0.0.0', port=5000, threads = 1)

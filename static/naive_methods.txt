@@ -1,0 +1,3 @@
+- Mean value: Always guessing the mean value of the train set
+- Last value: Always guessing the last value of the train set
+- Random walk: Starting from the last value of the train set and moving given a random noise

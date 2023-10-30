@@ -1,0 +1,2 @@
+Arima: The OG statistical method
+Theta model: Highly capable if optimized correctly
