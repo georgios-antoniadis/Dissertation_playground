@@ -10,6 +10,7 @@ def eval_string(score_dict, method):
 
     index = 0
 
+    # Debugging 
     print(score_dict)
 
     for key in score_dict:

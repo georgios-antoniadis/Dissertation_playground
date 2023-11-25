@@ -105,6 +105,35 @@ def split_user_data():
 
     return train, test
 
+def run_models(module_name, train, test):
+    # module_name = "traditional_models.traditional_models"
+    module = importlib.import_module(module_name)
+
+    predicted_dictionary = {}
+    scores_dict = {}
+
+    for name, function in module.__dict__.items():
+        if callable(function) and name.startswith('predict_'):
+            scores_dict[name] = []
+            start_time = time.time()
+            predicted_dictionary[name] = function(train, test)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            scores_dict[name].append(round(elapsed_time,4))
+
+    return predicted_dictionary, scores_dict
+
+def use_user_dataset():
+    if user_dataset_file == '':
+        train, test = import_test_data()
+    else:
+        train, test = split_user_data()
+
+    target_column_name = test.columns[1]
+    real = test[target_column_name]
+
+    return train, test, target_column_name, real
+
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -155,30 +184,9 @@ def function1():
 # Traditional methods route
 @app.route('/traditional_models', methods=['POST'])
 def traditional_models():
-
-    if user_dataset_file == '':
-        train, test = import_test_data()
-    else:
-        train, test = split_user_data()
-
-    target_column_name = test.columns[1]
-    real = test[target_column_name]
-
+    train, test, target_column_name, real = use_user_dataset()
     module_name = "traditional_models.traditional_models"
-    module = importlib.import_module(module_name)
-
-    predicted_dictionary = {}
-    scores_dict = {}
-
-    for name, function in module.__dict__.items():
-        if callable(function) and name.startswith('predict_'):
-            scores_dict[name] = []
-            start_time = time.time()
-            predicted_dictionary[name] = function(train, test)
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            scores_dict[name].append(round(elapsed_time,4))
-
+    predicted_dictionary, scores_dict = run_models(module_name, train, test)
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
 
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
@@ -187,30 +195,9 @@ def traditional_models():
 # ML models route
 @app.route('/ml_models', methods=['POST'])
 def ml_models():
-
-    if user_dataset_file == '':
-        train, test = import_test_data()
-    else:
-        train, test = split_user_data()
-
-    target_column_name = test.columns[1]
-    real = test[target_column_name]
-
+    train, test, target_column_name, real = use_user_dataset()
     module_name = "ml_models.ml_models"
-    module = importlib.import_module(module_name)
-
-    predicted_dictionary = {}
-    scores_dict = {}
-
-    for name, function in module.__dict__.items():
-        if callable(function) and name.startswith('predict_'):
-            scores_dict[name] = []
-            start_time = time.time()
-            predicted_dictionary[name] = function(train, test)
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            scores_dict[name].append(round(elapsed_time,4))
-
+    predicted_dictionary, scores_dict = run_models(module_name, train, test)
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Machine Learning')
 
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
@@ -219,34 +206,11 @@ def ml_models():
 
 @app.route('/naive_methods', methods=['POST'])
 def naive_methods():
-
-    if user_dataset_file == '':
-        train, test = import_test_data()
-    else:
-        train, test = split_user_data()
-
-    target_column_name = test.columns[1]
-    real = test[target_column_name]
-
+    train, test, target_column_name, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
-    module = importlib.import_module(module_name)
-
-    predicted_dictionary = {}
-    scores_dict = {}
-
-    for name, function in module.__dict__.items():
-        if callable(function) and name.startswith('predict_'):
-            scores_dict[name] = []
-            start_time = time.time()
-            predicted_dictionary[name] = function(train, test)
-            end_time = time.time()
-            elapsed_time = end_time - start_time
-            scores_dict[name].append(round(elapsed_time,4))
-
+    predicted_dictionary, scores_dict = run_models(module_name, train, test)
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
-    # Debugging
-    # print(result)
-    # return jsonify({'result': result})
+    
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
