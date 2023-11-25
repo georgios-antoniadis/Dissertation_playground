@@ -15,18 +15,6 @@ from evaluation_protocol.smape import smape
 from evaluation_protocol.shape_similarity import dtw
 from evaluation_protocol.result_string import eval_string
 
-# Models
-# from naive_methods.last_value import predict_last_value
-# from naive_methods.m4_naive import m4_naive
-# from naive_methods.only_mean import mean_naive
-# from naive_methods.random_walk import random_walk
-
-# from ml_models.lightgbm import lightgbm
-# from ml_models.prophet_model import prophet_model
-
-# from traditional_models.arima import arima_model
-# from traditional_models.theta_model import theta_model_forecast
-
 # Dataset
 from handle_dataset.transform import create_df_with_datetimes
 
@@ -185,7 +173,11 @@ def traditional_models():
     for name, function in module.__dict__.items():
         if callable(function) and name.startswith('predict_'):
             scores_dict[name] = []
+            start_time = time.time()
             predicted_dictionary[name] = function(train, test)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            scores_dict[name].append(round(elapsed_time,4))
 
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
 
@@ -213,7 +205,11 @@ def ml_models():
     for name, function in module.__dict__.items():
         if callable(function) and name.startswith('predict_'):
             scores_dict[name] = []
+            start_time = time.time()
             predicted_dictionary[name] = function(train, test)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            scores_dict[name].append(round(elapsed_time,4))
 
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Machine Learning')
 
@@ -241,7 +237,11 @@ def naive_methods():
     for name, function in module.__dict__.items():
         if callable(function) and name.startswith('predict_'):
             scores_dict[name] = []
+            start_time = time.time()
             predicted_dictionary[name] = function(train, test)
+            end_time = time.time()
+            elapsed_time = end_time - start_time
+            scores_dict[name].append(round(elapsed_time,4))
 
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
     # Debugging
