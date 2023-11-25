@@ -4,6 +4,7 @@ from tkinter import *
 import pandas as pd
 import importlib
 import time
+from memory_profiler import profile, memory_usage
 
 # import filedialog module
 from tkinter import filedialog
@@ -52,7 +53,7 @@ def create_eval_string(predicted_dictionary, scores_dict, real, method_type):
         scores_dict[key].append(round(grubbs_test_score))
         scores_dict[key].append(round(shape_similarity_score))
     
-    created_string += eval_string(score_dict=scores_dict, method=method_type)
+    created_string += eval_string(scores_dict=scores_dict)
 
     return created_string
 
@@ -62,8 +63,8 @@ def import_test_data():
     train_df = pd.read_csv(train_file)
     test_df = pd.read_csv(test_file)
 
-    train = create_df_with_datetimes(train_df, 0)
-    test = create_df_with_datetimes(test_df, 0)
+    train = create_df_with_datetimes(train_df, 4)
+    test = create_df_with_datetimes(test_df, 4)
 
     return train, test
 
@@ -115,11 +116,17 @@ def run_models(module_name, train, test):
     for name, function in module.__dict__.items():
         if callable(function) and name.startswith('predict_'):
             scores_dict[name] = []
+            # Please note that mem usage wraps botth the function and the time measurement!
+            mem_usage_before = memory_usage()[0]
             start_time = time.time()
             predicted_dictionary[name] = function(train, test)
             end_time = time.time()
+            mem_usage_after = memory_usage()[0]
+            # Memory usage is in mb while elapsed time is in seconds! 
+            mem_usage = mem_usage_after - mem_usage_before
             elapsed_time = end_time - start_time
             scores_dict[name].append(round(elapsed_time,4))
+            scores_dict[name].append(mem_usage)
 
     return predicted_dictionary, scores_dict
 

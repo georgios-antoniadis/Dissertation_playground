@@ -1,22 +1,12 @@
-def eval_string(score_dict, method):
-    # if method == 'Naive Methods':
-    #     string_to_return = "Model\t\t|\tMAPE\t|\tsMAPE\t|\tGrubbs\t|\tShape similarity\t|\n"
-    # else:    
-    #     string_to_return = "Model\t\t|\tTime Elapsed (sec)\t|\tMAPE\t|\tsMAPE\t|\tGrubbs\t|\tShape similarity\t|\n"
+from tabulate import tabulate
 
-    string_to_return = "Model\t\t|\tTime Elapsed (sec)\t|\tMAPE\t|\tsMAPE\t|\tGrubbs\t|\tShape similarity\t|\n"
-    line_string = "-" * len(string_to_return.expandtabs()) + '\n'
-    string_to_return += line_string
+def eval_string(scores_dict):
+    headers = ["Model", "Time Elapsed (sec)", "Memory usage (MB)", "MAPE", "sMAPE", "Grubbs", "Shape similarity"]
 
-    index = 0
+    # Create a list of lists for each row in the table
+    table_data = [[key.replace("predict_","")] + value for key, value in scores_dict.items()]
 
-    # Debugging 
-    print(score_dict)
-
-    for key in score_dict:
-        model = key
-        string_to_return += f"{model.replace('predict_','')}\t|\t{score_dict[key][0]}\t|\t{score_dict[key][1]}\t|\t{score_dict[key][2]}\t|\t{score_dict[key][3]}\t|\t{score_dict[key][4]}\t|\n"
-        string_to_return += line_string
-        index += 1
+    # Print the table using tabulate
+    string_to_return = tabulate(table_data, headers=headers, tablefmt="grid")
 
     return string_to_return
