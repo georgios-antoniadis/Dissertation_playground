@@ -9,6 +9,8 @@ def eval_string(score_dict, method):
 
     index = 0
 
+    print(score_dict)
+
     for key in score_dict:
         model = key
         string_to_return += f"{model}\t|\t{score_dict[key][0]}\t|\t{score_dict[key][1]}\t|\t{score_dict[key][2]}\t|\t{score_dict[key][3]}\t\t\t|\n"

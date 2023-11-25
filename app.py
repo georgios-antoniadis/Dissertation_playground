@@ -2,6 +2,7 @@ from flask import Flask, render_template, request, jsonify, render_template_stri
 import os
 from tkinter import *
 import pandas as pd
+import importlib
 
 # import filedialog module
 from tkinter import filedialog
@@ -11,13 +12,13 @@ from evaluation_protocol.grubbs import grubbs_score
 from evaluation_protocol.mape import mape
 from evaluation_protocol.smape import smape
 from evaluation_protocol.shape_similarity import dtw
-from evaluation_protocol.evaluation_protocol_string import eval_string
+from evaluation_protocol.result_string import eval_string
 
 # Models
-from naive_methods.last_value import predict_last_value
-from naive_methods.m4_naive import m4_naive
-from naive_methods.only_mean import mean_naive
-from naive_methods.random_walk import random_walk
+# from naive_methods.last_value import predict_last_value
+# from naive_methods.m4_naive import m4_naive
+# from naive_methods.only_mean import mean_naive
+# from naive_methods.random_walk import random_walk
 
 from ml_models.lightgbm import lightgbm
 from ml_models.prophet_model import prophet_model
@@ -103,7 +104,6 @@ def get_file_from_uploads():
 
     return uploaded_file_path
 
-
 def split_user_data():
 
     user_data_df = pd.read_csv(user_dataset_file)
@@ -150,7 +150,8 @@ def allowed_file(filename):
     print(filename.rsplit('.',1)[1].lower())
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
-## BUTTONS
+## BUTTON CALLS
+# ======================================================================================================================
 @app.route('/function1', methods=['POST'])
 def function1():
     for file in os.listdir('uploads'):
@@ -166,39 +167,27 @@ def function1():
 @app.route('/traditional_models', methods=['POST'])
 def traditional_models():
 
-    scores_dict = {
-        'arima': [],
-        'theta': []
-    }
-
-    print(user_dataset_file)
-
     if user_dataset_file == '':
-
         train, test = import_test_data()
     else:
         train, test = split_user_data()
-        # Debugging
-        # print("Found user data!")
-        # print(f"Length of train: {len(train)} and test: {len(test)}")
 
     target_column_name = test.columns[1]
     real = test[target_column_name]
 
-    # Forecast periods!! 
-    arima_forecasts = arima_model(series=train['target'].astype(float), forecast_periods=len(test))
-    theta_forecasts = theta_model_forecast(series=train['target'], h=len(test))
+    module_name = "traditional_models.traditional_models"
+    module = importlib.import_module(module_name)
 
-    predicted_dictionary = {"arima": arima_forecasts,
-                        "theta": theta_forecasts}
+    predicted_dictionary = {}
+    scores_dict = {}
 
+    for name, function in module.__dict__.items():
+        if callable(function) and name.startswith('predict_'):
+            scores_dict[name] = []
+            predicted_dictionary[name] = function(train, test)
 
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
 
-    # Debugging
-    # result = eval_string(scores_dict)
-    # print(result)
-    # return jsonify({'result': result})
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
@@ -206,32 +195,27 @@ def traditional_models():
 @app.route('/ml_models', methods=['POST'])
 def ml_models():
 
-    scores_dict = {
-        'prophet': []
-    }
-
     if user_dataset_file == '':
-
         train, test = import_test_data()
-    
     else:
         train, test = split_user_data()
 
     target_column_name = test.columns[1]
     real = test[target_column_name]
 
-    prophet_forecasts = prophet_model(train=train, test=test)
+    module_name = "ml_models.ml_models"
+    module = importlib.import_module(module_name)
 
+    predicted_dictionary = {}
+    scores_dict = {}
 
-    predicted_dictionary = {"prophet": prophet_forecasts
-                            }
+    for name, function in module.__dict__.items():
+        if callable(function) and name.startswith('predict_'):
+            scores_dict[name] = []
+            predicted_dictionary[name] = function(train, test)
 
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Machine Learning')
 
-    # Debugging
-    # result = eval_string(scores_dict)
-    # print(result)
-    # return jsonify({'result': result})
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
@@ -240,31 +224,23 @@ def ml_models():
 def naive_methods():
 
     if user_dataset_file == '':
-
         train, test = import_test_data()
-    
     else:
         train, test = split_user_data()
 
     target_column_name = test.columns[1]
     real = test[target_column_name]
 
-    last_value_forecasts = predict_last_value(train['target'].tolist(), len(test))
-    mean_naive_forecasts = mean_naive(train['target'].tolist(), len(test))
-    random_walk_forecasts = random_walk(train['target'].tolist(), len(test))
-    
-    predicted_dictionary = {
-        "last_value": last_value_forecasts,
-        "mean_naive": mean_naive_forecasts,
-        "random_walk": random_walk_forecasts
-                            }
+    module_name = "naive_methods.naive_methods"
+    module = importlib.import_module(module_name)
 
-    scores_dict = {
-        'last_value': [],
-        'mean_naive': [],
-        'random_walk': []
-    }
+    predicted_dictionary = {}
+    scores_dict = {}
 
+    for name, function in module.__dict__.items():
+        if callable(function) and name.startswith('predict_'):
+            scores_dict[name] = []
+            predicted_dictionary[name] = function(train, test)
 
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
     # Debugging
@@ -273,7 +249,7 @@ def naive_methods():
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
-
+# EXPORT RESULTS
 @app.route('/exportResults', methods=['POST'])
 def exportResults():
     export_file = open("output.txt", "w")

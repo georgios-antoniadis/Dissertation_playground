@@ -1,6 +1,6 @@
 import numpy as np
 
-def random_walk(input_data, test_set_length):
+def random_walk_naive(input_data, test_set_length):
     # Debugging
     # print(input_data[0])
     last_value = input_data[-1]
