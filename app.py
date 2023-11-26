@@ -5,7 +5,6 @@ import pandas as pd
 import importlib
 import time
 from memory_profiler import profile, memory_usage
-
 # import filedialog module
 from tkinter import filedialog
 
@@ -15,6 +14,7 @@ from evaluation_protocol.mape import mape
 from evaluation_protocol.smape import smape
 from evaluation_protocol.shape_similarity import dtw
 from evaluation_protocol.result_string import eval_string
+# from evaluation_protocol.evaluation_protocol import eval_protocol
 
 # Dataset
 from handle_dataset.transform import create_df_with_datetimes
@@ -216,8 +216,13 @@ def naive_methods():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
     predicted_dictionary, scores_dict = run_models(module_name, train, test)
+    # final_dict = eval_protocol(
+    #     predicted_dictionary=predicted_dictionary, 
+    #     real=real, 
+    #     method_type='Naive Methods',
+    #     scores_dict = scores_dict) 
+    # result = eval_string()
     result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
-    
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 

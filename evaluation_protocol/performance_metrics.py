@@ -40,8 +40,6 @@ def mape(y_true, y_pred):
     mape = (100 / n) * np.sum(mape_sum)
     return mape
 
-import numpy as np
-
 def smape(y_true, y_pred):
     if type(y_pred) == list and type(y_true) == list:
         y_pred = y_pred
