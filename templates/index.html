@@ -47,7 +47,7 @@
     
     <br><br>
     <h3>Results</h3>
-    <button onclick="clearAdditionalElements()">Clear results</button>
+    <button onclick="clearAdditionalElements('clear_results')">Clear results</button>
     
     <br><br>
     <button onclick="exportResults('exportResults')">Export Results</button>
@@ -153,12 +153,21 @@
         }
 
         // Returning to the original state
-        function clearAdditionalElements() {
-            // Get a reference to the result div
-            var resultDiv = document.getElementById('result');
-            
-            // Clear its content
-            resultDiv.innerHTML = '';
+        function clearAdditionalElements(functionName) {
+            console.log("Calling function: " + functionName);
+            $.ajax({
+                type: 'POST',
+                url: '/' + functionName,
+                success: function(response) {
+                    console.log("Response: " + response.result);
+                    var resultDiv = document.getElementById('result');
+                    // Clear its content
+                    resultDiv.innerHTML = '';
+                },
+                error: function(error) {
+                    console.error("Error: " + JSON.stringify(error));
+                }
+            });
         }
 
 

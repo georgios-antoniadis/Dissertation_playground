@@ -14,7 +14,7 @@ from evaluation_protocol.mape import mape
 from evaluation_protocol.smape import smape
 from evaluation_protocol.shape_similarity import dtw
 from evaluation_protocol.result_string import eval_string
-# from evaluation_protocol.evaluation_protocol import eval_protocol
+from evaluation_protocol.performance_metrics import rmse, nme, mae, mse, mape, smape
 
 # Dataset
 from handle_dataset.transform import create_df_with_datetimes
@@ -33,29 +33,60 @@ user_dataset_file = ''
 alpha = 0.05
 
 # Printing the evaluation protocol string
-def create_eval_string(predicted_dictionary, scores_dict, real, method_type):
-    created_string = f'{method_type}\n'
-    created_string += '- ' * len(method_type) + '\n'
-    for key in predicted_dictionary:
-        predicted = predicted_dictionary[key]
-        # Grubbs score makes no sense for methods that predict the last value or the mean
-        if method_type == 'Naive Methods' and key != 'random_walk':
-            grubbs_test_score = 0
-        else:
-            grubbs_test_score = grubbs_score(predicted, real, alpha)
-        smape_score = smape(real, predicted)
-        shape_similarity_score = dtw(predicted, real)
-        mape_score = mape(real, predicted)
+def scoring(predicted, scores_dict, real, method_type, method, elapsed_time_sec, memory_usage_mb):
+    if os.path.exists('session_file.csv'):
+        session_file = open('session_file.csv', 'a')
+    else:
+        session_file = open('session_file.csv', 'w')
+        session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
 
-        # MAPE | sMAPE | Grubbs | tShape similarity
-        scores_dict[key].append(round(mape_score,2))
-        scores_dict[key].append(round(smape_score,2))
-        scores_dict[key].append(round(grubbs_test_score))
-        scores_dict[key].append(round(shape_similarity_score))
+    str_to_write = f"{method},{method_type},{elapsed_time_sec},{memory_usage_mb},"
+
+    rmse_score = rmse(predicted, real)
+    nme_score = nme(predicted, real)
+    mae_score = mae(predicted, real)
+    mse_score = mse(predicted, real)
+    mape_score = mape(predicted, real)
+    smape_score = smape(predicted, real)
+
+    if method_type == 'Naive Methods' and method != 'random_walk':
+        grubbs_test_score = 0
+    else:
+        grubbs_test_score = grubbs_score(predicted, real, alpha)
+    shape_similarity_score = dtw(predicted, real)
+
+    str_to_write += f"{rmse_score},{nme_score},{mae_score},{mse_score},{mape_score},{smape_score},{grubbs_test_score},{shape_similarity_score}\n"
+    session_file.write(str_to_write)
+    session_file.close()
+    # created_string += eval_string(scores_dict=scores_dict)
+
+def run_models(module_name, train, test, real, method_type):
+    # module_name = "traditional_models.traditional_models"
+    module = importlib.import_module(module_name)
+
+    scores_dict = {}
+
+    for name, function in module.__dict__.items():
+        if callable(function) and name.startswith('predict_'):
+            scores_dict[name] = []
+            # Please note that mem usage wraps botth the function and the time measurement!
+            mem_usage_before = memory_usage()[0]
+            start_time = time.time()
+            predicted = function(train, test)
+            end_time = time.time()
+            mem_usage_after = memory_usage()[0]
+            # Memory usage is in mb while elapsed time is in seconds! 
+            mem_usage = mem_usage_after - mem_usage_before
+            elapsed_time = end_time - start_time
+            # scores_dict[name].append(("Elapsed Time",round(elapsed_time,4)))
+            # scores_dict[name].append(("Memory Usage",mem_usage))
+
+            scoring(predicted, scores_dict, real, method_type, name, elapsed_time, mem_usage)
+            # scoring(predicted, scores_dict, real, method_type, name)
     
-    created_string += eval_string(scores_dict=scores_dict)
+    string_to_return = eval_string()
 
-    return created_string
+    return string_to_return
 
 # Creating data to test the functions
 def import_test_data():
@@ -67,7 +98,6 @@ def import_test_data():
     test = create_df_with_datetimes(test_df, 4)
 
     return train, test
-
 
 def confirm_dataset_structure(uploaded_file_path):
     file_df = pd.read_csv(uploaded_file_path)
@@ -105,30 +135,6 @@ def split_user_data():
     test = user_data_df[split_index:]
 
     return train, test
-
-def run_models(module_name, train, test):
-    # module_name = "traditional_models.traditional_models"
-    module = importlib.import_module(module_name)
-
-    predicted_dictionary = {}
-    scores_dict = {}
-
-    for name, function in module.__dict__.items():
-        if callable(function) and name.startswith('predict_'):
-            scores_dict[name] = []
-            # Please note that mem usage wraps botth the function and the time measurement!
-            mem_usage_before = memory_usage()[0]
-            start_time = time.time()
-            predicted_dictionary[name] = function(train, test)
-            end_time = time.time()
-            mem_usage_after = memory_usage()[0]
-            # Memory usage is in mb while elapsed time is in seconds! 
-            mem_usage = mem_usage_after - mem_usage_before
-            elapsed_time = end_time - start_time
-            scores_dict[name].append(round(elapsed_time,4))
-            scores_dict[name].append(mem_usage)
-
-    return predicted_dictionary, scores_dict
 
 def use_user_dataset():
     if user_dataset_file == '':
@@ -193,8 +199,9 @@ def function1():
 def traditional_models():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "traditional_models.traditional_models"
-    predicted_dictionary, scores_dict = run_models(module_name, train, test)
-    result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
+    result = run_models(module_name, train, test, real, 'Traditional Methods')
+    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Traditional Methods')
+    # result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
 
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
@@ -204,8 +211,9 @@ def traditional_models():
 def ml_models():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "ml_models.ml_models"
-    predicted_dictionary, scores_dict = run_models(module_name, train, test)
-    result = create_eval_string(predicted_dictionary, scores_dict, real, 'Machine Learning')
+    result = run_models(module_name, train, test, real, 'Machine Learning')
+    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Machine Learning')
+    # result = create_eval_string(predicted_dictionary, scores_dict, real, 'Machine Learning')
 
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
@@ -215,24 +223,37 @@ def ml_models():
 def naive_methods():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
-    predicted_dictionary, scores_dict = run_models(module_name, train, test)
+    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Naive Methods')
     # final_dict = eval_protocol(
     #     predicted_dictionary=predicted_dictionary, 
     #     real=real, 
     #     method_type='Naive Methods',
     #     scores_dict = scores_dict) 
     # result = eval_string()
-    result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
+    # result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
+    result = run_models(module_name, train, test, real, "Naive Methods")
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
 # EXPORT RESULTS
-@app.route('/exportResults', methods=['POST'])
-def exportResults():
+@app.route('/export_results', methods=['POST'])
+def export_results():
     export_file = open("output.txt", "w")
     export_file.write(export)
     export_file.write('\n')
     return jsonify({'result': 'File exported successfully -> output.txt'})
+
+
+# EXPORT RESULTS
+@app.route('/clear_results', methods=['POST'])
+def clear_results():
+    if os.path.exists('session_file.csv'):
+        session_file = open('session_file.csv', 'w')
+        session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+    else:
+        session_file = open('session_file.csv', 'w')
+        session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+    return jsonify({'result': 'File clear successfully -> session_file.csv'})
 
 
 if __name__ == '__main__':
