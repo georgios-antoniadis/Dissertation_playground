@@ -145,6 +145,14 @@ def use_user_dataset():
 def index():
     return render_template('index.html')
 
+@app.route('/about')
+def about():
+    return render_template('about.html')
+
+@app.route('/report')
+def report():
+    return render_template('report.html')
+
 ## INPUT FILE
 @app.route('/upload-form', methods=['POST'])
 def upload_file():
