@@ -3,12 +3,18 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Simple Website</title>
+    <title>Dissertation Playground</title>
     <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
-    <h1>Traditional vs ML methods in Timeseries Forecasting</h1>
-    <h2>A playground to explore the different available models and pick which one suits best for your application</h2>
+    <h1>Dissertation Playground</h1>
+    <h2>Traditional vs ML methods in Timeseries Forecasting</h2>
+    <h3>A playground to explore the different available models and pick which one suits best for your application</h3>
+    <div id="Nav_bar">
+    <button class="nav-bar-button" id="Home_nav_button">Home</button>
+    <button class="nav-bar-button" id="About_nav_button">About</button>
+    <button class="nav-bar-button" id="Report_nav_button">Report</button>
+    </div>
     <hr>
 
     <!-- <input type="file" accept=".csv, .txt"> -->
@@ -28,6 +34,7 @@
     <button class='model' id='model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
     <button class='model' id='model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
     <button class='model' id='model_button' onclick="callFunction('naive_methods')">Naive methods</button>
+    
     </div>
 
     <br><br>
@@ -57,6 +64,22 @@
     <div id="result"></div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+
+    <!-- Navbar -->
+    <script type="text/javascript">
+        document.getElementById("Home_nav_button").onclick = function () {
+            location.href = "{{ url_for('index') }}";
+        };
+
+        document.getElementById("About_nav_button").onclick = function () {
+            location.href = "{{ url_for('about') }}";
+        };
+
+        document.getElementById("Report_nav_button").onclick = function () {
+            location.href = "{{ url_for('report') }}";
+        };
+    </script>
+
     <script>
 
         // Event listener for the form submission
@@ -169,9 +192,6 @@
                 }
             });
         }
-
-
-        
 
         fetch("sample.txt")
         .then(response => response.text())
