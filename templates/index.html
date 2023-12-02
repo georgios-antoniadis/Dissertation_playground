@@ -55,7 +55,11 @@
     <br><br>
     <h3>Results</h3>
     <button onclick="clearAdditionalElements('clear_results')">Clear results</button>
-    
+
+    <a href="sample.txt" download="GFG">
+        <button type="button">Download</button>
+    </a>
+
     <br><br>
     <button onclick="exportResults('exportResults')">Export Results</button>
     <div id="export"></div>
@@ -112,7 +116,6 @@
         });
 
 
-
         // Read more button
         const modal = document.querySelector('#modal');
         const openModal = document.querySelector('.open-button');
@@ -134,7 +137,7 @@
                 url: '/' + functionName,
                 success: function(response) {
                     console.log("Response: " + response.result);
-                    document.getElementById('result').innerHTML += response.result + '<br>';
+                    document.getElementById('result').innerHTML = response.result + '<br>';
                 },
                 error: function(error) {
                     console.error("Error: " + JSON.stringify(error));

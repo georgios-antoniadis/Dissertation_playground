@@ -1,4 +1,5 @@
 from flask import Flask, render_template, request, jsonify, render_template_string
+from flask_cors import CORS
 import os
 from tkinter import *
 import pandas as pd
@@ -20,6 +21,9 @@ from evaluation_protocol.performance_metrics import rmse, nme, mae, mse, mape, s
 from handle_dataset.transform import create_df_with_datetimes
 
 app = Flask(__name__)
+
+CORS(app, supports_credentials=True)
+
 
 result = ''
 export = 'This is the export file'
@@ -246,9 +250,11 @@ def naive_methods():
 # EXPORT RESULTS
 @app.route('/export_results', methods=['POST'])
 def export_results():
-    export_file = open("output.txt", "w")
-    export_file.write(export)
+    export_file = open("Exports/output.txt", "w")
+    export_string = eval_string()
+    export_file.write(export_string)
     export_file.write('\n')
+    export_file.close()
     return jsonify({'result': 'File exported successfully -> output.txt'})
 
 
@@ -258,9 +264,11 @@ def clear_results():
     if os.path.exists('session_file.csv'):
         session_file = open('session_file.csv', 'w')
         session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.close()
     else:
         session_file = open('session_file.csv', 'w')
         session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.close()
     return jsonify({'result': 'File clear successfully -> session_file.csv'})
 
 
