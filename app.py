@@ -22,9 +22,6 @@ from handle_dataset.transform import create_df_with_datetimes
 
 app = Flask(__name__)
 
-CORS(app, supports_credentials=True)
-
-
 result = ''
 export = 'This is the export file'
 
