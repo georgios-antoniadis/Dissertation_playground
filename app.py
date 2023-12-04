@@ -1,4 +1,4 @@
-from flask import Flask, render_template, request, jsonify, render_template_string
+from flask import Flask, render_template, request, jsonify, render_template_string, send_from_directory
 from flask_cors import CORS
 import os
 from tkinter import *
@@ -8,6 +8,12 @@ import time
 from memory_profiler import profile, memory_usage
 # import filedialog module
 from tkinter import filedialog
+
+# serving the application 
+from waitress import serve
+
+# allowing other origins
+from flask_cors import CORS
 
 # My custom evaluation protocol
 from evaluation_protocol.grubbs import grubbs_score
@@ -20,7 +26,8 @@ from evaluation_protocol.performance_metrics import rmse, nme, mae, mse, mape, s
 # Dataset
 from handle_dataset.transform import create_df_with_datetimes
 
-app = Flask(__name__)
+app = Flask(__name__, static_url_path='/static', static_folder='static')
+# CORS(app)
 
 result = ''
 export = 'This is the export file'
@@ -232,14 +239,6 @@ def ml_models():
 def naive_methods():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
-    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Naive Methods')
-    # final_dict = eval_protocol(
-    #     predicted_dictionary=predicted_dictionary, 
-    #     real=real, 
-    #     method_type='Naive Methods',
-    #     scores_dict = scores_dict) 
-    # result = eval_string()
-    # result = create_eval_string(predicted_dictionary, scores_dict, real, 'Naive Methods')
     result = run_models(module_name, train, test, real, "Naive Methods")
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
@@ -252,10 +251,15 @@ def export_results():
     export_file.write(export_string)
     export_file.write('\n')
     export_file.close()
-    return jsonify({'result': 'File exported successfully -> output.txt'})
+    return jsonify({'result': 'File exported successfully -> Click "Download"'})
 
 
-# EXPORT RESULTS
+# DOWNLOAD FILE
+@app.route('/Exports/<filename>')
+def download_file(filename):
+    return send_from_directory('Exports', filename, as_attachment=True)
+
+# CLEAR RESULTS
 @app.route('/clear_results', methods=['POST'])
 def clear_results():
     if os.path.exists('session_file.csv'):
@@ -266,8 +270,15 @@ def clear_results():
         session_file = open('session_file.csv', 'w')
         session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
         session_file.close()
+    
+    if os.path.exists('Exports/output.txt'):
+        output_file = open("Exports/output.txt", "w")
+        output_file.write("This is an empty output file!")
+        output_file.close()
+
     return jsonify({'result': 'File clear successfully -> session_file.csv'})
 
 
 if __name__ == '__main__':
     app.run(debug=True)
+    # serve(app, host='0.0.0.0', port=5000, threads = 1)

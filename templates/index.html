@@ -55,13 +55,15 @@
     <br><br>
     <h3>Results</h3>
     <button onclick="clearAdditionalElements('clear_results')">Clear results</button>
-
-    <a href="sample.txt" download="GFG">
+    <br><br>
+    
+    
+    <!-- EXPORT -->
+    <button onclick="exportResults('export_results')">Export Results</button>
+    <a href="/Exports/output.txt" download="GFG">
         <button type="button">Download</button>
     </a>
-
-    <br><br>
-    <button onclick="exportResults('exportResults')">Export Results</button>
+    
     <div id="export"></div>
     <br><br>
     <hr>
@@ -196,7 +198,7 @@
             });
         }
 
-        fetch("sample.txt")
+        fetch("static/sample.txt")
         .then(response => response.text())
         .then(data => {
             // Set the title attribute using the fetched data
