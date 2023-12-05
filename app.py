@@ -1,5 +1,4 @@
 from flask import Flask, render_template, request, jsonify, render_template_string, send_from_directory
-from flask_cors import CORS
 import os
 from tkinter import *
 import pandas as pd
@@ -8,12 +7,6 @@ import time
 from memory_profiler import profile, memory_usage
 # import filedialog module
 from tkinter import filedialog
-
-# serving the application 
-from waitress import serve
-
-# allowing other origins
-from flask_cors import CORS
 
 # My custom evaluation protocol
 from evaluation_protocol.grubbs import grubbs_score
