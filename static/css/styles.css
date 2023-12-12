@@ -43,6 +43,15 @@ button.model {
   margin-right: 2px;
 }
 
+label {
+  margin-bottom: 5px;
+}
+
+input.config_slider {
+  margin-left: 2px;
+  margin-right: 2px;
+}
+
 #Nav_bar {
   padding-left: 25%;
 }

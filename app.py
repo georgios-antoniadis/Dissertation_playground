@@ -194,7 +194,7 @@ def traditional_models():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "traditional_models.traditional_models"
     result = run_models(module_name, train, test, real, 'Traditional Methods')
-    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Traditional Methods')
+    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Traditional Metgit hods')
     # result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
 
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
