@@ -17,7 +17,8 @@ from evaluation_protocol.result_string import eval_string
 from evaluation_protocol.performance_metrics import rmse, nme, mae, mse, mape, smape
 
 # Dataset
-from handle_dataset.transform import create_df_with_datetimes
+from data_processing.transform import create_df_with_datetimes
+from data_processing.pre_processing import pre_processing
 
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 # CORS(app)
@@ -100,31 +101,6 @@ def import_test_data():
 
     return train, test
 
-def confirm_dataset_structure(uploaded_file_path):
-    file_df = pd.read_csv(uploaded_file_path)
-    flag = False
-    if file_df.columns == ['timestamp','target']:
-        flag = True
-    else:
-        flag = False
-    
-    return flag
-
-def get_file_from_uploads():
-    uploaded_file_path = ''
-    for file in os.listdir('uploads'):
-        if ".csv" in file:
-            print(f"Found uploaded file! {file}")
-            uploaded_file_path = os.path.join('uploads',file)
-            continue
-    
-    if confirm_dataset_structure(uploaded_file_path):
-        print("File can be used")
-    else:
-        uploaded_file_path == 'File does not contain the correct columns'
-
-    return uploaded_file_path
-
 def split_user_data():
 
     user_data_df = pd.read_csv(user_dataset_file)
@@ -147,6 +123,13 @@ def use_user_dataset():
     real = test[target_column_name]
 
     return train, test, target_column_name, real
+
+
+def allowed_file(filename):
+    # Add the allowed file extensions here
+    allowed_extensions = set(['csv', 'txt'])
+    print(filename.rsplit('.',1)[1].lower())
+    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
 
 @app.route('/')
 def index():
@@ -182,13 +165,15 @@ def upload_file():
     file.save(os.path.join('uploads', file.filename))
     global user_dataset_file 
     user_dataset_file = os.path.join('uploads', file.filename)
-    return jsonify({'message': 'File uploaded successfully'})
 
-def allowed_file(filename):
-    # Add the allowed file extensions here
-    allowed_extensions = set(['csv', 'txt'])
-    print(filename.rsplit('.',1)[1].lower())
-    return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+    pre_processing_result = pre_processing()
+
+    if pre_processing_result == True:
+        return jsonify({'message': 'File uploaded successfully'})
+    else: 
+        print(pre_processing_result)
+        return jsonify({'message': pre_processing_result})
+
 
 ## BUTTON CALLS
 # ======================================================================================================================

@@ -99,15 +99,32 @@
                 data: formData,
                 contentType: false,
                 processData: false,
-                success: function (response) {
+                success: function(response) {
                     // Update the upload status div with the response message
                     document.getElementById('upload-status').innerHTML = response.message;
                 },
-                error: function (error) {
-                    console.error("Error: " + JSON.stringify(error));
+                error: function(response) {
+                    // console.error("Error: " + JSON.stringify(error));
+                    document.getElementById('upload-status').innerHTML = response.message;
                 }
             });
         });
+
+        // Function that communicates with python
+        function callFunction(functionName) {
+            console.log("Calling function: " + functionName);
+            $.ajax({
+                type: 'POST',
+                url: '/' + functionName,
+                success: function(response) {
+                    console.log("Response: " + response.result);
+                    document.getElementById('result').innerHTML = response.result + '<br>';
+                },
+                error: function(error) {
+                    console.error("Error: " + JSON.stringify(error));
+                }
+            });
+        }
 
         document.getElementById('model_button').addEventListener('mouseover', function() {
             // Fetch the contents of "sample.txt" and set the title attribute
@@ -129,22 +146,6 @@
         closeModal.addEventListener('click',()=>{
             modal.close();
         })
-
-        // Function that communicates with python
-        function callFunction(functionName) {
-            console.log("Calling function: " + functionName);
-            $.ajax({
-                type: 'POST',
-                url: '/' + functionName,
-                success: function(response) {
-                    console.log("Response: " + response.result);
-                    document.getElementById('result').innerHTML = response.result + '<br>';
-                },
-                error: function(error) {
-                    console.error("Error: " + JSON.stringify(error));
-                }
-            });
-        }
 
          // Function that communicates with python
          function uploadFile(functionName) {
