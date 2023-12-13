@@ -118,22 +118,6 @@
             document.getElementById("slider_2_value").innerText = "Slider 2: "  + slider2;
             document.getElementById("slider_3_value").innerText = "Slider 3: "  + slider3;
 
-            // if (total > 10) {
-            //     // Adjust sliders to ensure the total is not more than 10
-            //     var excess = total - 10;
-            //     var maxSliderValue = Math.max(slider1, slider2, slider3);
-
-            //     if (maxSliderValue === slider1) {
-            //         document.getElementById("slider1").value -= excess;
-            //     } else if (maxSliderValue === slider2) {
-            //         document.getElementById("slider2").value -= excess;
-            //     } else {
-            //         document.getElementById("slider3").value -= excess;
-            //     }
-
-            //     // Update total after adjustment
-            //     total = 10;
-            // }
             if (total > 10){
                 document.getElementById("total").innerText = total + " !";
             }
@@ -141,6 +125,29 @@
                 document.getElementById("total").innerText = total;
             }
         }
+    </script>
+
+    <script>
+        // Event listener for the sliders
+        document.getElementById('sliderForm').addEventListener('submit', function (e) {
+
+        var formData = new FormData(this); // Create a FormData object
+        e.preventDefault(); 
+        $.ajax({
+            type: 'POST',
+            url: '/slider-form',
+            data: formData,
+            contentType: false,
+            processData: false,
+            success: function(response) {
+                console.log(response.message)
+            },
+            error: function(response) {
+                console.log(response.message)
+            }
+        });
+        });
+
     </script>
 
     <script>

@@ -31,6 +31,12 @@ test_file = 'Dataset/Yearly-test.csv'
 
 user_dataset_file = ''
 
+slider1 = 2
+slider2 = 2
+slider3 = 2
+slider4 = 2
+slider5 = 2
+
 # For grubbs score 
 alpha = 0.05
 
@@ -175,18 +181,24 @@ def upload_file():
         return jsonify({'message': pre_processing_result})
 
 
+## Sliders
+@app.route('/slider-form', methods=['POST'])
+def sliders():
+    global slider1
+    slider1 = int(request.form['slider1'])
+
+    global slider2
+    slider2 = int(request.form['slider2'])
+    
+    global slider3
+    slider3 = int(request.form['slider3'])
+    
+    return jsonify({'message': 'The value I got for slider 1 was' + str(slider1)})
+    
+
+
 ## BUTTON CALLS
 # ======================================================================================================================
-@app.route('/function1', methods=['POST'])
-def function1():
-    for file in os.listdir('uploads'):
-        data_file = open(os.path.join('uploads',file), 'r')
-        file_lines = data_file.readlines()
-        from_file = len(file_lines)
-    result = f'Function 1: Lines in file = {from_file}'
-    return jsonify({'result': result})
-    # return render_template('index.html', result=result)
-
 
 # Traditional methods route
 @app.route('/traditional_models', methods=['POST'])
@@ -212,9 +224,10 @@ def ml_models():
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 
-
+# Naive methods route
 @app.route('/naive_methods', methods=['POST'])
 def naive_methods():
+    print(f"slider1 = {slider1}, slider2 = {slider2}, slider3 = {slider3}")
     train, test, target_column_name, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
     result = run_models(module_name, train, test, real, "Naive Methods")
