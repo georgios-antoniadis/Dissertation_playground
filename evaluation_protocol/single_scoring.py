@@ -1,29 +1,111 @@
 import pandas as pd
 
-# df = pd.read_csv("session_file.csv")
-# df['model'] = df['model'].replace("predict_","", regex=True)
+df = pd.read_csv("../session_file.csv")
+# csv columns 
+# model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity
+df['model'] = df['model'].replace("predict_","", regex=True)
 
-w1 = 0.0025
-w2 = 0.0025
-w3 = 0.0025
-w4 = 0.0025
-w5 = 0.99
+min_rmse = df['rmse'].max()
+max_rmse = df['rmse'].min()
+
+min_nme = df['nme'].max()
+max_nme = df['nme'].min()
+
+min_mae = df['mae'].max()
+max_mae = df['mae'].min()
+
+min_mse = df['mse'].max()
+max_mse = df['mse'].min()
+
+min_mape = df['mape'].max()
+max_mape = df['mape'].min()
+
+min_smape = df['smape'].max()
+max_smape = df['smape'].min()
+
+min_grubbs = df['grubbs'].max()
+max_grubbs = df['grubbs'].min()
+
+min_shape_similarity = df['shape_similarity'].max()
+max_shape_similarity = df['shape_similarity'].min()
+
+min_time = df['time_elapsed_sec'].max()
+max_time = df['time_elapsed_sec'].min()
+
+
+def normalize(value, min_value, max_value):
+    if value == 0:
+        normalized_value = 0
+    else:
+        normalized_value = (value-min_value) / (max_value-min_value)
+    return normalized_value
+
+def acc(row):
+    accuracy_score = (normalize(row['rmse'], min_rmse, max_rmse) 
+                    + normalize(row['nme'], min_nme, max_nme) 
+                    + normalize(row['mae'], min_mae, max_mae) 
+                    + normalize(row['mse'], min_mse, max_mse) 
+                    + normalize(row['mape'], min_mape, max_mape) 
+                    + normalize(row['smape'], min_smape, max_smape)
+                    ) / 6
+
+    return accuracy_score
+
+
+def single_score(row):
+    accuracy_score = acc(row)
+    outliers = normalize(row['grubbs'], min_grubbs, max_grubbs)
+    time = normalize(row['time_elapsed_sec'], min_time, max_time)
+    shape_similarity = normalize(row['shape_similarity'], min_shape_similarity, max_shape_similarity)
+
+    score = (w1*accuracy_score) + (w2*outliers) + (w3*shape_similarity) + (w4*time)
+
+    return score
+
+
+def find_best_naive_method(df):
+    best_naive_method = ''
+    best_score = 1000
+
+    for index, row in df.iterrows():
+        if row['method_type'] == 'Naive Methods':
+            
+            score = single_score(row)
+
+            if score < best_score:
+                best_score = score
+                best_naive_method = row['model']
+    
+    return best_naive_method, best_score
+
+
+# Weights 
+w1 = 0.2
+w2 = 0.2
+w3 = 0.2
+w4 = 0.2
+w5 = 0.2
+
+save_file = open("single_scores.csv", "w")
+save_file.write("method,score\n")
 
 # Accuracy metrics 
 acc_metrics = 0.6
+# Naive methods
+best_naive_method, best_naive_score = find_best_naive_method(df)
+print(best_naive_score)
 
-# Outliers 
-outliers = 0.5
+for index, row in df.iterrows():
+    if row['method_type'] not in ['Naive Methods']:
+        score = single_score(row)
+        print(f"{row['model']}:{score}")
+        score += w5 * (score - best_naive_score)
+        print(f"{row['model']}:{score}")
+        save_file.write(f"{row['model']},{score*10}\n")
 
-# Shape similarity 
-shape_similarity = 0.2
 
-# Time 
-time_elapsed = 0.05
+save_file.close()
 
-# Naive 
-compared_to_naive_methods = 0.1
-
-final_score = (w1*acc_metrics) + (w2*outliers) + (w3*shape_similarity) + (w4*time_elapsed) + (1-(w5*compared_to_naive_methods))
-
-print(final_score)
+single_scores_df = pd.read_csv("single_scores.csv")
+single_scores_df = single_scores_df.sort_values(by='score')
+single_scores_df.to_csv("single_scores.csv", index=False)
