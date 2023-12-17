@@ -6,7 +6,6 @@ def eval_string():
 
     df = pd.read_csv("session_file.csv")
     df['model'] = df['model'].replace("predict_","", regex=True)
-    print(df.head())
     # Create a list of lists for each row in the table
     string_to_return = tabulate(df, headers='keys', tablefmt="grid")
 

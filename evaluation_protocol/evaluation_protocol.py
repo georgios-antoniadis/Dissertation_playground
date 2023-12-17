@@ -1,8 +1,5 @@
 import importlib
-# from performance_metrics import rmse, nme, mae, mse, mape, smape
-# from shape_similarity import dtw
-# from grubbs import grubbs_score
-from result_string import eval_string
+import pandas as pd
 
 # Take real and predicted as input 
 def run_performance_metrics(real, predicted, method_type, method):
@@ -27,6 +24,12 @@ def run_performance_metrics(real, predicted, method_type, method):
 
     return performance_results
 
+# Producing a single score in the end!
+def single_value_score():
+    session_file = pd.read_csv('../session_file.csv')
+    for index, row in session_file.itterows():
+        return True
+    return True
 
 # Return performance dictionary 
 def eval_protocol(predicted_dictionary, real, method_type, scores_dict):
