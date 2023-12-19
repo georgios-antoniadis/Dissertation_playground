@@ -9,13 +9,28 @@
 <body>
     <h1>About</h1>
     <h2>This is the about page</h2>
-    <h3>Hi from about!</h3>
     <div id="Nav_bar">
     <button class="nav-bar-button" id="Home_nav_button">Home</button>
     <button class="nav-bar-button" id="About_nav_button">About</button>
     <button class="nav-bar-button" id="Report_nav_button">Report</button>
     </div>
+
     <hr>
+
+    <!-- <dialog class="modal", id="modal"> -->
+    <div id="Upload_dataset">
+    <h1>Uploading your dataset</h1>
+    <h2>Format</h2>
+    <p>Make sure that your file is in .csv format and delimited via comma ','</p>
+    <h2>Sample</h2>
+    <p id="Dataset_sample"></p>
+    <h2>Timestamp format</h2>
+    <p>dd-mm-yy hh:mm</p>
+    <p>e.g. 01-01-80 18:00 is the 1st of January 1980</p>
+        <!-- <button class="button close-button">Close</button> -->
+    <!-- </dialog> -->
+    </div>
+
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
@@ -32,6 +47,30 @@
         document.getElementById("Report_nav_button").onclick = function () {
             location.href = "{{ url_for('report') }}";
         };
+    </script>
+
+    <script>
+        fetch("static/dataset_sample.txt")
+        .then(response => response.text())
+        .then(data => {
+            // Set the title attribute using the fetched data
+            document.getElementById('Dataset_sample').innerHTML = '<pre>' + data + '</pre>';
+        })
+
+
+         // Read more button
+        const modal = document.querySelector('#modal');
+        const openModal = document.querySelector('.open-button');
+        const closeModal = document.querySelector('.close-button');
+
+        openModal.addEventListener('click',()=>{
+            modal.showModal();
+        })
+
+        closeModal.addEventListener('click',()=>{
+            modal.close();
+        })
+
     </script>
 
 </body>

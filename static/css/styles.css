@@ -33,6 +33,15 @@ h3 {
   }
 
 
+p {
+    /* Set the desired font-family */
+    font-family: "Helvetica Neue", Helvetica, Arial, sans-serif;
+    font-size: 18px;
+    font-style: normal;
+    text-align: left;
+  }
+
+
 button {
   margin-left: 25%;
   margin-right: 25%;
@@ -54,6 +63,11 @@ input.config_slider {
 
 #Nav_bar {
   padding-left: 25%;
+}
+
+#Upload_dataset {
+  margin-left: 25%;
+  margin-right: 25%;
 }
 
 button.nav-bar-button{
