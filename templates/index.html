@@ -7,86 +7,85 @@
     <link rel="stylesheet" href="static/css/styles.css">
 </head>
 <body>
-    <h1>Dissertation Playground</h1>
-    <h2>Traditional vs ML methods in Timeseries Forecasting</h2>
-    <h3>A playground to explore the different available models and pick which one suits best for your application</h3>
-    <div id="Nav_bar">
-    <button class="nav-bar-button" id="Home_nav_button">Home</button>
-    <button class="nav-bar-button" id="About_nav_button">About</button>
-    <button class="nav-bar-button" id="Report_nav_button">Report</button>
+    <div class="section-wrapper" id="Heading">
+        <h1>Dissertation Playground</h1>
+        <h2>Traditional vs ML methods in Timeseries Forecasting</h2>
+        <h3>A playground to explore the different available models and pick which one suits best for your application</h3>
+        <div id="Nav_bar">
+            <button class="nav-bar-button" id="Home_nav_button">Home</button>
+            <button class="nav-bar-button" id="About_nav_button">About</button>
+            <button class="nav-bar-button" id="Report_nav_button">Report</button>
+        </div>
+        <hr>
     </div>
-    <hr>
+    
 
     <!-- <input type="file" accept=".csv, .txt"> -->
-    <h3>Upload a snapshot of your dataset</h3>
-    <form id="upload-form" method="POST" enctype="multipart/form-data">
-        <input type="file" name="file" accept=".csv, .txt">
-        <input type="submit" value="Upload File">
-    </form>
-
-    <div id="upload-status"></div>
+    <div class="section-wrapper" id="input">
+        <h3>Upload a snapshot of your dataset</h3>
+        <form id="upload-form" method="POST" enctype="multipart/form-data">
+            <input type="file" name="file" accept=".csv, .txt">
+            <input type="submit" value="Upload File">
+        </form>
+        <div id="upload-status"></div>
+    </div>
     
     <br><br>
     
-    <form id="sliderForm">
-        <p><span id="slider_1_value">Slider 1: </span></p>
-        <input type="range" id="slider1" class="config_slider" name="slider1" min="0" max="10" step="1" value="0" oninput="updateSliders()">
-        <br>
+    <div class="section-wrapper" id="sliders">
+        <form id="sliderForm">
+            <p><span id="slider_1_value">Slider 1: </span></p>
+            <input type="range" id="slider1" class="config_slider" name="slider1" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <br>
 
-        <p><span id="slider_2_value">Slider 2: </span></p>
-        <input type="range" id="slider2" class="config_slider" name="slider2" min="0" max="10" step="1" value="0" oninput="updateSliders()">
-        <!-- <br> -->
+            <p><span id="slider_2_value">Slider 2: </span></p>
+            <input type="range" id="slider2" class="config_slider" name="slider2" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <!-- <br> -->
 
-        <p><span id="slider_3_value">Slider 3: </span></p>
-        <input type="range" id="slider3" class="config_slider" name="slider3" min="0" max="10" step="1" value="0" oninput="updateSliders()">
-        <!-- <br> -->
+            <p><span id="slider_3_value">Slider 3: </span></p>
+            <input type="range" id="slider3" class="config_slider" name="slider3" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <!-- <br> -->
 
 
-        <p>Total: <span id="total">0</span></p>
-        <input type="submit" value="Submit">
-    </form>
-
-    <br><br>
-
-    <h3 class="Model_title">Experiment</h3>
-    <div id="Model_buttons">
-    <button class='model' id='model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
-    <button class='model' id='model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
-    <button class='model' id='model_button' onclick="callFunction('naive_methods')">Naive methods</button>
-    
+            <p>Total: <span id="total">0</span></p>
+            <input type="submit" value="Submit">
+        </form>
     </div>
 
     <br><br>
-    <!-- Model Help Modal -->
-    <button class="button open-button" id="hover-element">Read More</button>
-    <dialog class="modal", id="modal">
-        <h2>The models</h2>
-        <h3>Traditional</h3>
-        <p>ARIMA</p>
-        <p>Theta</p>
-        <p>ETS - Exponential Smoothing</p>
-        <h3>Machine Learning Models</h3>
-        <p>Prophet</p>
-        <p>LightGBM</p>
-        <button class="button close-button">Close</button>
-    </dialog>
-    
+
+    <div class="section-wrapper" id="experiment">
+        <h3 class="Model_title">Experiment</h3>
+        <div id="Model_buttons">
+        <button class='model' id='model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
+        <button class='model' id='model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
+        <button class='model' id='model_button' onclick="callFunction('naive_methods')">Naive methods</button>
+        </div>
+    </div>
+
     <br><br>
-    <h3>Results</h3>
-    <button onclick="clearAdditionalElements('clear_results')">Clear results</button>
+
+    <div class="section-wrapper" id="results">
+        <h3>Results</h3>
+        <button onclick="clearAdditionalElements('clear_results')">Clear results</button>
+    </div>
+
     <br><br>
-    
     
     <!-- EXPORT -->
-    <button onclick="exportResults('export_results')">Export Results</button>
-    <a href="/Exports/output.txt" download="GFG">
-        <button type="button">Download</button>
-    </a>
+    <div class="section-wrapper" id="export">
+        <button onclick="exportResults('export_results')">Export Results</button>
+        <a href="/Exports/output.txt" download="GFG">
+            <button type="button">Download</button>
+        </a>
+    </div>
     
-    <div id="export"></div>
+    <div class="section-wrapper" id="export"></div>
     <br><br>
-    <hr>
-    <div id="result"></div>
+    
+    <div class="section-wrapper" id="result">
+        <hr>
+    </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 

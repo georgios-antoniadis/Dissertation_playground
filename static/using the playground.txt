@@ -1,0 +1,14 @@
+<h1>Using the playground</h1>
+<h2>(1)Upload the dataset</h2>
+<p>Make sure that your file meets the specified requirements</p>
+<p>Click on "choose file" and then submit it</p>
+<h2>(2)Configure the evaluation</h2>
+<p>Adjust the evaluation protocol, so that it matches your needs, using the sliders and then click "submit" to save your selection</p>
+<h2>(3)Experiment</h2>
+<p>Click on the available model buttons depending on the ones you want to test with. Allow the application to fetch you the results before clicking on another button</p>
+<h2>(4)Output</h2>
+<p>An export preview will be available at the bottom of the page as soon as you experiment with the model(s)</p>
+<h2>(5)Export</h2>
+<p>To export the results seen on the browser, click on "Export results" and then "Download" as soon as the corresponding message appears</p>
+<h2>(6)Clearing</h2>
+<p>You can clear the output and consequently the export by clicking "Clear results"</p>
