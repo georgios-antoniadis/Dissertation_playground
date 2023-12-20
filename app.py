@@ -20,6 +20,9 @@ from evaluation_protocol.performance_metrics import rmse, nme, mae, mse, mape, s
 from data_processing.transform import create_df_with_datetimes
 from data_processing.pre_processing import pre_processing
 
+# Config files
+from configparser import ConfigParser
+
 app = Flask(__name__, static_url_path='/static', static_folder='static')
 # CORS(app)
 
@@ -181,22 +184,35 @@ def upload_file():
         print(pre_processing_result)
         return jsonify({'message': pre_processing_result})
 
-
-## Sliders
+# Reading and updating config files
 @app.route('/slider-form', methods=['POST'])
-def sliders():
-    global slider1
-    slider1 = int(request.form['slider1'])
+def single_scoring_config():
+    #Read config file
+    config_object = ConfigParser()
+    config_object.read("evaluation_protocol/config.ini")
 
-    global slider2
-    slider2 = int(request.form['slider2'])
-    
-    global slider3
-    slider3 = int(request.form['slider3'])
-    
-    return jsonify({'message': 'The value I got for slider 1 was' + str(slider1)})
-    
+    #Get the USERINFO section
+    scoring_config = config_object["SINGLESCOREINFO"]
 
+    print(f"Current values are:\n \
+          accuracy:{scoring_config['accuracy']},\n \
+          outlier:{scoring_config['outliers']},\n \
+          shape:{scoring_config['shape']},\n \
+          time:{scoring_config['time']},\n \
+          naive:{scoring_config['naive']}")
+
+    # request.form works with the elements' names 
+    scoring_config['accuracy'] = request.form['slider1']
+    scoring_config['outliers'] = request.form['slider2']
+    scoring_config['shape'] = request.form['slider3']
+    scoring_config['time'] = request.form['slider4']
+    scoring_config['naive'] = request.form['slider5']
+
+    #Write changes back to file
+    with open('evaluation_protocol/config.ini', 'w') as conf:
+        config_object.write(conf)
+
+    return jsonify({'message': 'Config file updated!'})
 
 ## BUTTON CALLS
 # ======================================================================================================================
@@ -207,8 +223,6 @@ def traditional_models():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "traditional_models.traditional_models"
     result = run_models(module_name, train, test, real, 'Traditional Methods')
-    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Traditional Metgit hods')
-    # result = create_eval_string(predicted_dictionary, scores_dict, real, 'Traditional Methods')
 
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
@@ -219,8 +233,6 @@ def ml_models():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "ml_models.ml_models"
     result = run_models(module_name, train, test, real, 'Machine Learning')
-    # predicted_dictionary, scores_dict = run_models(module_name, train, test, 'Machine Learning')
-    # result = create_eval_string(predicted_dictionary, scores_dict, real, 'Machine Learning')
 
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
@@ -232,6 +244,7 @@ def naive_methods():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
     result = run_models(module_name, train, test, real, "Naive Methods")
+
     return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
 
 

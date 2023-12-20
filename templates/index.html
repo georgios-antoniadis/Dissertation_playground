@@ -34,17 +34,21 @@
     
     <div class="section-wrapper" id="sliders">
         <form id="sliderForm">
-            <p><span id="slider_1_value">Slider 1: </span></p>
-            <input type="range" id="slider1" class="config_slider" name="slider1" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <p><span id="slider_1_value">Accuracy: </span></p>
+            <input type="range" id="accuracy_slider" class="config_slider" name="slider1" min="0" max="10" step="1" value="0" oninput="updateSliders()">
             <br>
 
-            <p><span id="slider_2_value">Slider 2: </span></p>
-            <input type="range" id="slider2" class="config_slider" name="slider2" min="0" max="10" step="1" value="0" oninput="updateSliders()">
-            <!-- <br> -->
+            <p><span id="slider_2_value">Outliers: </span></p>
+            <input type="range" id="outliers_slider" class="config_slider" name="slider2" min="0" max="10" step="1" value="0" oninput="updateSliders()">
 
-            <p><span id="slider_3_value">Slider 3: </span></p>
-            <input type="range" id="slider3" class="config_slider" name="slider3" min="0" max="10" step="1" value="0" oninput="updateSliders()">
-            <!-- <br> -->
+            <p><span id="slider_3_value">Shape similarity: </span></p>
+            <input type="range" id="shape_slider" class="config_slider" name="slider3" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+
+            <p><span id="slider_4_value">Execution time: </span></p>
+            <input type="range" id="time_slider" class="config_slider" name="slider4" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+
+            <p><span id="slider_5_value">Improvement over naive methods: </span></p>
+            <input type="range" id="naive_slider" class="config_slider" name="slider5" min="0" max="10" step="1" value="0" oninput="updateSliders()">
 
 
             <p>Total: <span id="total">0</span></p>
@@ -107,15 +111,17 @@
     <!-- Controlling sliders  -->
     <script>
         function updateSliders() {
-            var slider1 = parseInt(document.getElementById("slider1").value);
-            var slider2 = parseInt(document.getElementById("slider2").value);
-            var slider3 = parseInt(document.getElementById("slider3").value);
+            var accuracy_slider = parseInt(document.getElementById("accuracy_slider").value);
+            var outliers_slider = parseInt(document.getElementById("outliers_slider").value);
+            var shape_slider = parseInt(document.getElementById("shape_slider").value);
+            var time_slider = parseInt(document.getElementById("time_slider").value);
+            var naive_slider = parseInt(document.getElementById("naive_slider").value);
 
-            var total = slider1 + slider2 + slider3;
-
-            document.getElementById("slider_1_value").innerText = "Slider 1: "  + slider1;
-            document.getElementById("slider_2_value").innerText = "Slider 2: "  + slider2;
-            document.getElementById("slider_3_value").innerText = "Slider 3: "  + slider3;
+            document.getElementById("slider_1_value").innerText = "Accuracy: "  + accuracy_slider;
+            document.getElementById("slider_2_value").innerText = "Outliers: "  + outliers_slider;
+            document.getElementById("slider_3_value").innerText = "Shape similarity: "  + shape_slider;
+            document.getElementById("slider_4_value").innerText = "Execution time: "  + time_slider;
+            document.getElementById("slider_5_value").innerText = "Improvement over naive methods: "  + naive_slider;
 
             if (total > 10){
                 document.getElementById("total").innerText = total + " !";
