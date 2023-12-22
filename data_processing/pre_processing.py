@@ -1,10 +1,12 @@
 import pandas as pd
 import os
+# Config files
+from configparser import ConfigParser
 
-def get_file_from_uploads():
+def get_file_from_uploads(file_name):
     uploaded_file_path = ''
     for file in os.listdir('uploads'):
-        if ".csv" in file:
+        if ".csv" in file and file_name in file:
             print(f"Found uploaded file! {file}")
             uploaded_file_path = os.path.join('uploads',file)
             continue
@@ -38,9 +40,9 @@ def confirm_dataset_structure(uploaded_file_path):
     
     return flag
 
-def pre_processing():
+def pre_processing(file_name):
 
-    uploaded_file = get_file_from_uploads()
+    uploaded_file = get_file_from_uploads(file_name)
 
     str_to_return = True
 
@@ -48,5 +50,27 @@ def pre_processing():
         str_to_return = 'Invalid column names! Expected column names Timestamp, target'
     elif not timestamp_check(uploaded_file):
         str_to_return =  'Invalid timestamp format! Expected column names "%d-%m-%y %H:%M"'
+    
+    if str_to_return == True:
+
+        # ALL FILE PATHS MUST BE MADE WITH REFERENCE TO THEIR RELATIVE PATH COMPARED TO APP.PY
+
+        config_object = ConfigParser()
+        config_object.read("evaluation_protocol/config.ini")
+        
+        # open_file = open('evaluation_protocol/test.txt','w')
+        # print(open_file.readline())
+        # open_file.close()
+
+        print(config_object.sections())
+
+        #Get the PREPROCESSING section
+        config = config_object["PREPROCESSING"]
+
+        config['passed'] = 'true'
+
+        #Write changes back to file
+        with open('evaluation_protocol/config.ini', 'w') as conf:
+            config_object.write(conf)
     
     return str_to_return

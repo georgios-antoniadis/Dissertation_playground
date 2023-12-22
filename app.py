@@ -34,13 +34,6 @@ test_file = 'Dataset/Yearly-test.csv'
 
 user_dataset_file = ''
 
-# Setting the default value for the sliders
-slider1 = 2
-slider2 = 2
-slider3 = 2
-slider4 = 2
-slider5 = 2
-
 # For grubbs score 
 alpha = 0.05
 
@@ -134,12 +127,24 @@ def use_user_dataset():
 
     return train, test, target_column_name, real
 
-
 def allowed_file(filename):
     # Add the allowed file extensions here
     allowed_extensions = set(['csv', 'txt'])
     print(filename.rsplit('.',1)[1].lower())
     return '.' in filename and filename.rsplit('.', 1)[1].lower() in allowed_extensions
+
+def pre_processing_passed():
+    pre_processing_check_config_object = ConfigParser()
+    pre_processing_check_config_object.read("evaluation_protocol/config.ini")
+
+    #Get the SINGLESCOREINFO section
+    config = pre_processing_check_config_object["PREPROCESSING"]
+    pre_processing_result = config['passed']
+
+    if pre_processing_result == 'false':
+        return False
+    else:
+        return True
 
 @app.route('/')
 def index():
@@ -176,7 +181,7 @@ def upload_file():
     global user_dataset_file 
     user_dataset_file = os.path.join('uploads', file.filename)
 
-    pre_processing_result = pre_processing()
+    pre_processing_result = pre_processing(file.filename)
 
     if pre_processing_result == True:
         return jsonify({'message': 'File uploaded successfully'})
@@ -188,11 +193,11 @@ def upload_file():
 @app.route('/slider-form', methods=['POST'])
 def single_scoring_config():
     #Read config file
-    config_object = ConfigParser()
-    config_object.read("evaluation_protocol/config.ini")
+    scoring_config_object = ConfigParser()
+    scoring_config_object.read("evaluation_protocol/config.ini")
 
-    #Get the USERINFO section
-    scoring_config = config_object["SINGLESCOREINFO"]
+    #Get the SINGLESCOREINFO section
+    scoring_config = scoring_config_object["SINGLESCOREINFO"]
 
     print(f"Current values are:\n \
           accuracy:{scoring_config['accuracy']},\n \
@@ -210,7 +215,7 @@ def single_scoring_config():
 
     #Write changes back to file
     with open('evaluation_protocol/config.ini', 'w') as conf:
-        config_object.write(conf)
+        scoring_config_object.write(conf)
 
     return jsonify({'message': 'Config file updated!'})
 
@@ -222,30 +227,36 @@ def single_scoring_config():
 def traditional_models():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "traditional_models.traditional_models"
-    result = run_models(module_name, train, test, real, 'Traditional Methods')
-
-    return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
-
+    if pre_processing_passed:
+        result = run_models(module_name, train, test, real, 'Traditional Methods')
+        return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
+    else:
+        return jsonify({'message':'Pre-processing has failed! Please re-upload your dataset'})
+        
 
 # ML models route
 @app.route('/ml_models', methods=['POST'])
 def ml_models():
     train, test, target_column_name, real = use_user_dataset()
     module_name = "ml_models.ml_models"
-    result = run_models(module_name, train, test, real, 'Machine Learning')
-
-    return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
+    if pre_processing_passed:
+        result = run_models(module_name, train, test, real, 'Machine Learning')
+        return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
+    else:
+        return jsonify({'message':'Pre-processing has failed! Please re-upload your dataset'})
 
 
 # Naive methods route
 @app.route('/naive_methods', methods=['POST'])
 def naive_methods():
-    print(f"slider1 = {slider1}, slider2 = {slider2}, slider3 = {slider3}")
     train, test, target_column_name, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
-    result = run_models(module_name, train, test, real, "Naive Methods")
-
-    return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
+    if pre_processing_passed:
+        result = run_models(module_name, train, test, real, "Naive Methods")
+        return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
+    else:
+        return jsonify({'message':'Pre-processing has failed! Please re-upload your dataset'})
+        
 
 
 # EXPORT RESULTS

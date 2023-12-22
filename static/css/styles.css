@@ -40,6 +40,11 @@ p {
   margin-right: 25%;
 }
 
+.result-wrapper{
+  margin-left: 10%;
+  margin-right: 10%;
+}
+
 button.model {
   margin-left: 2px;
   margin-right: 2px;

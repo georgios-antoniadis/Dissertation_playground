@@ -1,4 +1,6 @@
 import pandas as pd
+# Config files
+from configparser import ConfigParser
 
 df = pd.read_csv("../session_file.csv")
 # csv columns 
@@ -58,7 +60,7 @@ def single_score(row):
     time = normalize(row['time_elapsed_sec'], min_time, max_time)
     shape_similarity = normalize(row['shape_similarity'], min_shape_similarity, max_shape_similarity)
 
-    score = (w1*accuracy_score) + (w2*outliers) + (w3*shape_similarity) + (w4*time)
+    score = (w_accuracy*accuracy_score) + (w_outliers*outliers) + (w_shape*shape_similarity) + (w_time*time)
 
     return score
 
@@ -71,7 +73,8 @@ def find_best_naive_method(df):
         if row['method_type'] == 'Naive Methods':
             
             score = single_score(row)
-
+            save_file.write(f"{row['model']},{score}\n")
+            
             if score < best_score:
                 best_score = score
                 best_naive_method = row['model']
@@ -80,11 +83,18 @@ def find_best_naive_method(df):
 
 
 # Weights 
-w1 = 0.2
-w2 = 0.2
-w3 = 0.2
-w4 = 0.2
-w5 = 0.2
+#Read config file
+config_object = ConfigParser()
+config_object.read("evaluation_protocol/config.ini")
+
+#Get the SINGLESCOREINFO section
+scoring_config = config_object["SINGLESCOREINFO"]
+ 
+w_accuracy = scoring_config['accuracy']
+w_outliers = scoring_config['outliers'] 
+w_shape = scoring_config['shape']  
+w_time = scoring_config['time']  
+w_naive = scoring_config['naive'] 
 
 save_file = open("single_scores.csv", "w")
 save_file.write("method,score\n")
@@ -99,7 +109,7 @@ for index, row in df.iterrows():
     if row['method_type'] not in ['Naive Methods']:
         score = single_score(row)
         print(f"{row['model']}:{score}")
-        score += w5 * (score - best_naive_score)
+        score += w_naive * (score - best_naive_score)
         print(f"{row['model']}:{score}")
         save_file.write(f"{row['model']},{score*10}\n")
 
