@@ -34,21 +34,20 @@
     
     <div class="section-wrapper" id="sliders">
         <form id="sliderForm">
-            <p><span id="slider_1_value">Accuracy: </span></p>
-            <input type="range" id="accuracy_slider" class="config_slider" name="slider1" min="0" max="10" step="1" value="0" oninput="updateSliders()">
-            <br>
+            <p><span id="slider_1_value">Accuracy: 2</span></p>
+            <input type="range" id="accuracy_slider" class="config_slider" name="slider1" min="0" max="10" step="1" value="2" oninput="updateSliders()">
 
-            <p><span id="slider_2_value">Outliers: </span></p>
-            <input type="range" id="outliers_slider" class="config_slider" name="slider2" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <p><span id="slider_2_value">Outliers: 2</span></p>
+            <input type="range" id="outliers_slider" class="config_slider" name="slider2" min="0" max="10" step="1" value="2" oninput="updateSliders()">
 
-            <p><span id="slider_3_value">Shape similarity: </span></p>
-            <input type="range" id="shape_slider" class="config_slider" name="slider3" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <p><span id="slider_3_value">Shape similarity: 2</span></p>
+            <input type="range" id="shape_slider" class="config_slider" name="slider3" min="0" max="10" step="1" value="2" oninput="updateSliders()">
 
-            <p><span id="slider_4_value">Execution time: </span></p>
-            <input type="range" id="time_slider" class="config_slider" name="slider4" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <p><span id="slider_4_value">Execution time: 2</span></p>
+            <input type="range" id="time_slider" class="config_slider" name="slider4" min="0" max="10" step="1" value="2" oninput="updateSliders()">
 
-            <p><span id="slider_5_value">Improvement over naive methods: </span></p>
-            <input type="range" id="naive_slider" class="config_slider" name="slider5" min="0" max="10" step="1" value="0" oninput="updateSliders()">
+            <p><span id="slider_5_value">Improvement over naive methods: 2</span></p>
+            <input type="range" id="naive_slider" class="config_slider" name="slider5" min="0" max="10" step="1" value="2" oninput="updateSliders()">
 
 
             <p>Total: <span id="total">0</span></p>
@@ -61,9 +60,9 @@
     <div class="section-wrapper" id="experiment">
         <h3 class="Model_title">Experiment</h3>
         <div id="Model_buttons">
-        <button class='model' id='model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
-        <button class='model' id='model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
-        <button class='model' id='model_button' onclick="callFunction('naive_methods')">Naive methods</button>
+        <button class='model' id='traditional_model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
+        <button class='model' id='ml_model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
+        <button class='model' id='naive_model_button' onclick="callFunction('naive_methods')">Naive methods</button>
         </div>
     </div>
 
@@ -80,7 +79,7 @@
     <div class="section-wrapper" id="export">
         <button onclick="exportResults('export_results')">Export Results</button>
         <a href="/Exports/output.txt" download="GFG">
-            <button type="button">Download</button>
+            <button type="button" id="Download_button">Download</button>
         </a>
     </div>
     
@@ -123,6 +122,8 @@
             document.getElementById("slider_4_value").innerText = "Execution time: "  + time_slider;
             document.getElementById("slider_5_value").innerText = "Improvement over naive methods: "  + naive_slider;
 
+            total = accuracy_slider + outliers_slider + shape_slider + time_slider + naive_slider;
+
             if (total > 10){
                 document.getElementById("total").innerText = total + " !";
             }
@@ -135,22 +136,38 @@
     <script>
         // Event listener for the sliders
         document.getElementById('sliderForm').addEventListener('submit', function (e) {
+        
+            var accuracy_slider = parseInt(document.getElementById("accuracy_slider").value);
+            var outliers_slider = parseInt(document.getElementById("outliers_slider").value);
+            var shape_slider = parseInt(document.getElementById("shape_slider").value);
+            var time_slider = parseInt(document.getElementById("time_slider").value);
+            var naive_slider = parseInt(document.getElementById("naive_slider").value);
 
-        var formData = new FormData(this); // Create a FormData object
-        e.preventDefault(); 
-        $.ajax({
-            type: 'POST',
-            url: '/slider-form',
-            data: formData,
-            contentType: false,
-            processData: false,
-            success: function(response) {
-                console.log(response.message)
-            },
-            error: function(response) {
-                console.log(response.message)
+            var total = accuracy_slider + outliers_slider + shape_slider + time_slider + naive_slider;
+
+            if (total > 10) {
+                alert("Sliders total should equal to or less than 10!");
+                e.preventDefault(); // Prevent the form from submitting
+                return;
             }
-        });
+            else{
+                var formData = new FormData(this); // Create a FormData object
+                e.preventDefault(); 
+                $.ajax({
+                    type: 'POST',
+                    url: '/slider-form',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        console.log(response.message)
+                    },
+                    error: function(response) {
+                        console.log(response.message)
+                    }
+                });
+            }
+        
         });
 
     </script>
@@ -160,24 +177,35 @@
         // Event listener for the form submission
         document.getElementById('upload-form').addEventListener('submit', function (e) {
 
-            var formData = new FormData(this); // Create a FormData object
-            e.preventDefault(); // Prevent the form from submitting normally
-            // Send an AJAX request to handle the file upload
-            $.ajax({
-                type: 'POST',
-                url: '/upload-form',
-                data: formData,
-                contentType: false,
-                processData: false,
-                success: function(response) {
-                    // Update the upload status div with the response message
-                    document.getElementById('upload-status').innerHTML = response.message;
-                },
-                error: function(response) {
-                    // console.error("Error: " + JSON.stringify(error));
-                    document.getElementById('upload-status').innerHTML = response.message;
-                }
-            });
+            var fileInput = document.querySelector('input[type="file"]');
+            var fileSize = fileInput.files[0].size; // in bytes
+            var maxSize = 20 * 1024 * 1024; // 20 MB
+
+            if (fileSize > maxSize) {
+                alert("File size exceeds 20 MB. Please upload a smaller file.");
+                e.preventDefault(); // Prevent the form from submitting
+                return;
+            }
+            else {
+                var formData = new FormData(this); // Create a FormData object
+                e.preventDefault(); // Prevent the form from submitting normally
+                // Send an AJAX request to handle the file upload
+                $.ajax({
+                    type: 'POST',
+                    url: '/upload-form',
+                    data: formData,
+                    contentType: false,
+                    processData: false,
+                    success: function(response) {
+                        // Update the upload status div with the response message
+                        document.getElementById('upload-status').innerHTML = response.message;
+                    },
+                    error: function(response) {
+                        // console.error("Error: " + JSON.stringify(error));
+                        document.getElementById('upload-status').innerHTML = response.message;
+                    }
+                });
+            }
         });
 
         // Function that communicates with python
@@ -187,8 +215,14 @@
                 type: 'POST',
                 url: '/' + functionName,
                 success: function(response) {
-                    console.log("Response: " + response.result);
-                    document.getElementById('result').innerHTML = response.result + '<br>';
+
+                    if (response.result.includes('Error')){
+                        alert(response.result);
+                    }
+                    else {
+                        // console.log("Response: " + response.result);
+                        document.getElementById('result').innerHTML = response.result + '<br>';
+                    }
                 },
                 error: function(error) {
                     console.error("Error: " + JSON.stringify(error));
@@ -196,12 +230,12 @@
             });
         }
 
-        document.getElementById('model_button').addEventListener('mouseover', function() {
-            // Fetch the contents of "sample.txt" and set the title attribute
-            const currentContent = document.getElementById(elementId).textContent;
-            const buttonId = document.getElementsByClassName(elementId).elementId;
-            fetchAndSetTitle(currentContent, buttonId);
-        });
+        // document.getElementById('model_button').addEventListener('mouseover', function() {
+        //     // Fetch the contents of "sample.txt" and set the title attribute
+        //     const currentContent = document.getElementById(elementId).textContent;
+        //     const buttonId = document.getElementsByClassName(elementId).elementId;
+        //     fetchAndSetTitle(currentContent, buttonId);
+        // });
 
 
         // Read more button
@@ -209,13 +243,13 @@
         const openModal = document.querySelector('.open-button');
         const closeModal = document.querySelector('.close-button');
 
-        openModal.addEventListener('click',()=>{
-            modal.showModal();
-        })
+        // openModal.addEventListener('click',()=>{
+        //     modal.showModal();
+        // })
 
-        closeModal.addEventListener('click',()=>{
-            modal.close();
-        })
+        // closeModal.addEventListener('click',()=>{
+        //     modal.close();
+        // })
 
          // Function that communicates with python
          function uploadFile(functionName) {
@@ -268,13 +302,34 @@
             });
         }
 
-        fetch("static/sample.txt")
+        fetch("static/traditional.txt")
         .then(response => response.text())
         .then(data => {
             // Set the title attribute using the fetched data
-            document.getElementById('hover-element').title = data;
+            document.getElementById('traditional_model_button').title = data;
         })
 
+        fetch("static/machine_learning.txt")
+        .then(response => response.text())
+        .then(data => {
+            // Set the title attribute using the fetched data
+            document.getElementById('ml_model_button').title = data;
+        })
+
+        fetch("static/Naive_method.txt")
+        .then(response => response.text())
+        .then(data => {
+            // Set the title attribute using the fetched data
+            document.getElementById('naive_model_button').title = data;
+        })
+
+        fetch("static/download.txt")
+        .then(response => response.text())
+        .then(data => {
+            // Set the title attribute using the fetched data
+            document.getElementById('Download_button').title = data;
+        })
+        
         
 
     </script>

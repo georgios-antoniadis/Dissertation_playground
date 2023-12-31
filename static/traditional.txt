@@ -1,0 +1,5 @@
+Arima: p = 1 | d = 1 | q = 1
+
+ETS: Seasonal periods = 6
+
+Theta model: Time step between observations = 1

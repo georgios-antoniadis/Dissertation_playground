@@ -38,7 +38,7 @@ user_dataset_file = ''
 alpha = 0.05
 
 # Printing the evaluation protocol string
-def scoring(predicted, scores_dict, real, method_type, method, elapsed_time_sec, memory_usage_mb):
+def scoring(predicted, real, method_type, method, elapsed_time_sec, memory_usage_mb):
     if os.path.exists('session_file.csv'):
         session_file = open('session_file.csv', 'a')
     else:
@@ -73,7 +73,6 @@ def run_models(module_name, train, test, real, method_type):
 
     for name, function in module.__dict__.items():
         if callable(function) and name.startswith('predict_'):
-            scores_dict[name] = []
             # Please note that mem usage wraps botth the function and the time measurement!
             mem_usage_before = memory_usage()[0]
             start_time = time.time()
@@ -83,11 +82,8 @@ def run_models(module_name, train, test, real, method_type):
             # Memory usage is in mb while elapsed time is in seconds! 
             mem_usage = mem_usage_after - mem_usage_before
             elapsed_time = end_time - start_time
-            # scores_dict[name].append(("Elapsed Time",round(elapsed_time,4)))
-            # scores_dict[name].append(("Memory Usage",mem_usage))
 
-            scoring(predicted, scores_dict, real, method_type, name, elapsed_time, mem_usage)
-            # scoring(predicted, scores_dict, real, method_type, name)
+            scoring(predicted, real, method_type, name, elapsed_time, mem_usage)
     
     string_to_return = eval_string()
 
@@ -125,7 +121,7 @@ def use_user_dataset():
     target_column_name = test.columns[1]
     real = test[target_column_name]
 
-    return train, test, target_column_name, real
+    return train, test, real
 
 def allowed_file(filename):
     # Add the allowed file extensions here
@@ -145,6 +141,53 @@ def pre_processing_passed():
         return False
     else:
         return True
+    
+def naive_run():
+    check_config_object = ConfigParser()
+    check_config_object.read("evaluation_protocol/config.ini")
+
+    #Get the SINGLESCOREINFO section
+    config = check_config_object["MODELS"]
+    has_naive_run = config['has_naive_run']
+
+    if has_naive_run == 'false':
+        print("Config naive run is false!")
+        return False
+    else:
+        return True
+
+def reset_config_file():
+    # Update config file for confirm that naive methods have run 
+    config_object = ConfigParser()
+    config_object.read("evaluation_protocol/config.ini")
+    #Get the PREPROCESSING section
+    config = config_object["MODELS"]
+    config['has_naive_run'] = 'false'
+    #Write changes back to file
+    with open('evaluation_protocol/config.ini', 'w') as conf:
+        config_object.write(conf)
+    
+    config = config_object["SINGLESCOREINFO"]
+    config['accuracy'] = '2'
+    config['outliers'] = '2'
+    config['shape'] = '2'
+    config['time'] = '2'
+    config['naive'] = '2'
+    #Write changes back to file
+    with open('evaluation_protocol/config.ini', 'w') as conf:
+        config_object.write(conf)
+
+    config = config_object["PREPROCESSING"]
+    config['passed'] = 'false'
+    #Write changes back to file
+    with open('evaluation_protocol/config.ini', 'w') as conf:
+        config_object.write(conf)
+    
+    config = config_object["USERFILE"]
+    config['file_path'] = 'empty'
+    #Write changes back to file
+    with open('evaluation_protocol/config.ini', 'w') as conf:
+        config_object.write(conf)
 
 @app.route('/')
 def index():
@@ -225,37 +268,53 @@ def single_scoring_config():
 # Traditional methods route
 @app.route('/traditional_models', methods=['POST'])
 def traditional_models():
-    train, test, target_column_name, real = use_user_dataset()
+    train, test, real = use_user_dataset()
     module_name = "traditional_models.traditional_models"
-    if pre_processing_passed:
+    if not pre_processing_passed():
+        return jsonify({'result':'Error: Pre-processing has failed! Please re-upload your dataset'})
+    elif not naive_run():
+        return jsonify({'result':'Error: Naive methods must run first!'})
+    else:
         result = run_models(module_name, train, test, real, 'Traditional Methods')
         return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
-    else:
-        return jsonify({'message':'Pre-processing has failed! Please re-upload your dataset'})
         
 
 # ML models route
 @app.route('/ml_models', methods=['POST'])
 def ml_models():
-    train, test, target_column_name, real = use_user_dataset()
+    train, test, real = use_user_dataset()
     module_name = "ml_models.ml_models"
-    if pre_processing_passed:
+    if not pre_processing_passed():
+        return jsonify({'result':'Error: Pre-processing has failed! Please re-upload your dataset'})
+    elif not naive_run():
+        return jsonify({'result':'Error: Naive methods must run first!'})
+    else:
         result = run_models(module_name, train, test, real, 'Machine Learning')
         return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
-    else:
-        return jsonify({'message':'Pre-processing has failed! Please re-upload your dataset'})
 
 
 # Naive methods route
 @app.route('/naive_methods', methods=['POST'])
 def naive_methods():
-    train, test, target_column_name, real = use_user_dataset()
+    train, test, real = use_user_dataset()
     module_name = "naive_methods.naive_methods"
-    if pre_processing_passed:
+    if pre_processing_passed():
         result = run_models(module_name, train, test, real, "Naive Methods")
+
+        # Update config file for confirm that naive methods have run 
+        config_object = ConfigParser()
+        config_object.read("evaluation_protocol/config.ini")
+        #Get the PREPROCESSING section
+        config = config_object["MODELS"]
+        config['has_naive_run'] = 'true'
+        #Write changes back to file
+        with open('evaluation_protocol/config.ini', 'w') as conf:
+            config_object.write(conf)
+
         return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
+        
     else:
-        return jsonify({'message':'Pre-processing has failed! Please re-upload your dataset'})
+        return jsonify({'result':'Error: Pre-processing has failed! Please re-upload your dataset'})
         
 
 
@@ -292,9 +351,11 @@ def clear_results():
         output_file.write("This is an empty output file!")
         output_file.close()
 
+    #Reseting the session file
+    reset_config_file()
+
     return jsonify({'result': 'File clear successfully -> session_file.csv'})
 
 
 if __name__ == '__main__':
     app.run(debug=True)
-    # serve(app, host='0.0.0.0', port=5000, threads = 1)

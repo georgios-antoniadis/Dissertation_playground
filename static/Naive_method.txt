@@ -1,0 +1,5 @@
+Mean value
+
+Last value: Last value of the train set
+
+Random walk: noise random with std relative to the train set

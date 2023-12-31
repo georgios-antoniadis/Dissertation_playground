@@ -2,6 +2,7 @@ import pandas as pd
 import os
 # Config files
 from configparser import ConfigParser
+from datetime import datetime
 
 def get_file_from_uploads(file_name):
     uploaded_file_path = ''
@@ -12,7 +13,7 @@ def get_file_from_uploads(file_name):
             continue
     
     if confirm_dataset_structure(uploaded_file_path):
-        print("File can be used")
+        print("File matches expected structure")
     else:
         uploaded_file_path == 'File does not contain the correct columns'
 
@@ -27,6 +28,21 @@ def timestamp_check(filepath):
     except:
         print('Timestamp column cannot be transformed to datetime object')
         return False
+
+
+def date_check(filepath):
+    df = pd.read_csv(filepath)
+
+    df['timestamp'] = pd.to_datetime(df['timestamp'], format="%d-%m-%y %H:%M")
+
+    current_date = datetime.now()
+
+    print(df['timestamp'].max())
+
+    if current_date < df['timestamp'].max():
+        return False
+    else:
+        return True
 
 
 def confirm_dataset_structure(uploaded_file_path):
@@ -47,10 +63,12 @@ def pre_processing(file_name):
     str_to_return = True
 
     if not confirm_dataset_structure(uploaded_file):
-        str_to_return = 'Invalid column names! Expected column names Timestamp, target'
+        str_to_return = 'Invalid column names! Expected column names "timestamp", "target"'
     elif not timestamp_check(uploaded_file):
         str_to_return =  'Invalid timestamp format! Expected column names "%d-%m-%y %H:%M"'
-    
+    elif not date_check(uploaded_file):
+        str_to_return = 'Error: Some timestamps in dataset are in the future!'
+
     if str_to_return == True:
 
         # ALL FILE PATHS MUST BE MADE WITH REFERENCE TO THEIR RELATIVE PATH COMPARED TO APP.PY

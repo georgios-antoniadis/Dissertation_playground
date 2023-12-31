@@ -8,7 +8,7 @@ def predict_arima(series,forecast_periods):
     forecast_periods = len(forecast_periods)
     p = 1
     d = 1
-    q =1
+    q = 1
     # train_list = train_df.loc[0][1:].dropna().tolist()
     arima_model = ARIMA(series, order=(p,d,q))
     arima_results = arima_model.fit()
