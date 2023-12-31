@@ -5,17 +5,13 @@ from configparser import ConfigParser
 from datetime import datetime
 
 def get_file_from_uploads(file_name):
-    uploaded_file_path = ''
-    for file in os.listdir('uploads'):
-        if ".csv" in file and file_name in file:
-            print(f"Found uploaded file! {file}")
-            uploaded_file_path = os.path.join('uploads',file)
-            continue
-    
-    if confirm_dataset_structure(uploaded_file_path):
-        print("File matches expected structure")
-    else:
-        uploaded_file_path == 'File does not contain the correct columns'
+    #Update config file
+    config_object = ConfigParser()
+    config_object.read("evaluation_protocol/config.ini")
+    #Get the SINGLESCOREINFO section
+    config = config_object["USERFILE"]
+    # request.form works with the elements' names 
+    uploaded_file_path = config['file_path']
 
     return uploaded_file_path
 
@@ -48,8 +44,17 @@ def date_check(filepath):
 def confirm_dataset_structure(uploaded_file_path):
     file_df = pd.read_csv(uploaded_file_path)
     flag = False
-    print(file_df.columns)
     if [file_df.columns[0],file_df.columns[1]] == ['timestamp', 'target']:
+        flag = True
+    else:
+        flag = False
+    
+    return flag
+
+def number_of_rows(uploaded_file_path):
+    file_df = pd.read_csv(uploaded_file_path)
+    flag = False
+    if file_df.shape[0] > 10 and file_df.shape[0] < 10000:
         flag = True
     else:
         flag = False
@@ -68,6 +73,8 @@ def pre_processing(file_name):
         str_to_return =  'Invalid timestamp format! Expected column names "%d-%m-%y %H:%M"'
     elif not date_check(uploaded_file):
         str_to_return = 'Error: Some timestamps in dataset are in the future!'
+    elif not number_of_rows(uploaded_file):
+        str_to_return = 'Error: Dataset has either less than 10 rows or more than 10000!'
 
     if str_to_return == True:
 

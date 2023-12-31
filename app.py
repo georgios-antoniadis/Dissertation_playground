@@ -5,6 +5,7 @@ import pandas as pd
 import importlib
 import time
 from memory_profiler import profile, memory_usage
+from datetime import date, datetime
 # import filedialog module
 from tkinter import filedialog
 
@@ -15,6 +16,7 @@ from evaluation_protocol.smape import smape
 from evaluation_protocol.shape_similarity import dtw
 from evaluation_protocol.result_string import eval_string
 from evaluation_protocol.performance_metrics import rmse, nme, mae, mse, mape, smape
+from evaluation_protocol.single_scoring import score
 
 # Dataset
 from data_processing.transform import create_df_with_datetimes
@@ -38,14 +40,14 @@ user_dataset_file = ''
 alpha = 0.05
 
 # Printing the evaluation protocol string
-def scoring(predicted, real, method_type, method, elapsed_time_sec, memory_usage_mb):
+def scoring(predicted, real, method_type, method, elapsed_time_sec,):
     if os.path.exists('session_file.csv'):
         session_file = open('session_file.csv', 'a')
     else:
         session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.write("model,method_type,time_elapsed_sec,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
 
-    str_to_write = f"{method},{method_type},{elapsed_time_sec},{memory_usage_mb},"
+    str_to_write = f"{method},{method_type},{elapsed_time_sec},"
 
     rmse_score = rmse(predicted, real)
     nme_score = nme(predicted, real)
@@ -63,27 +65,20 @@ def scoring(predicted, real, method_type, method, elapsed_time_sec, memory_usage
     str_to_write += f"{rmse_score},{nme_score},{mae_score},{mse_score},{mape_score},{smape_score},{grubbs_test_score},{shape_similarity_score}\n"
     session_file.write(str_to_write)
     session_file.close()
-    # created_string += eval_string(scores_dict=scores_dict)
 
 def run_models(module_name, train, test, real, method_type):
-    # module_name = "traditional_models.traditional_models"
     module = importlib.import_module(module_name)
-
-    scores_dict = {}
 
     for name, function in module.__dict__.items():
         if callable(function) and name.startswith('predict_'):
             # Please note that mem usage wraps botth the function and the time measurement!
-            mem_usage_before = memory_usage()[0]
             start_time = time.time()
             predicted = function(train, test)
             end_time = time.time()
-            mem_usage_after = memory_usage()[0]
             # Memory usage is in mb while elapsed time is in seconds! 
-            mem_usage = mem_usage_after - mem_usage_before
             elapsed_time = end_time - start_time
 
-            scoring(predicted, real, method_type, name, elapsed_time, mem_usage)
+            scoring(predicted, real, method_type, name, elapsed_time)
     
     string_to_return = eval_string()
 
@@ -219,10 +214,17 @@ def upload_file():
     if not allowed_file(file.filename):
         return jsonify({'error': 'Invalid file extension', 'file extenstion': file.filename})
 
-    # Save the uploaded file to a specific location
-    file.save(os.path.join('uploads', file.filename))
-    global user_dataset_file 
-    user_dataset_file = os.path.join('uploads', file.filename)
+    #Update config file
+    config_object = ConfigParser()
+    config_object.read("evaluation_protocol/config.ini")
+    #Get the SINGLESCOREINFO section
+    config = config_object["USERFILE"]
+    # request.form works with the elements' names 
+    config['file_path'] = os.path.join('uploads', file.filename)
+    #Write changes back to file
+    with open('evaluation_protocol/config.ini', 'w') as conf:
+        config_object.write(conf)
+
 
     pre_processing_result = pre_processing(file.filename)
 
@@ -322,6 +324,18 @@ def naive_methods():
 @app.route('/export_results', methods=['POST'])
 def export_results():
     export_file = open("Exports/output.txt", "w")
+    #Some data first
+    export_file.write(datetime.now().strftime("%m/%d/%Y, %H:%M"))
+    export_file.write("\n")
+    config_object = ConfigParser()
+    config_object.read("evaluation_protocol/config.ini")
+    config = config_object["USERFILE"]
+    export_file.write(f"Dataset: {config['file_path'].split(r'uploads/')[1]}")
+    export_file.write("\n")
+    export_file.write("================================================================")
+    export_file.write("\n")
+    
+    #Data
     export_string = eval_string()
     export_file.write(export_string)
     export_file.write('\n')
@@ -334,16 +348,21 @@ def export_results():
 def download_file(filename):
     return send_from_directory('Exports', filename, as_attachment=True)
 
+# DOWNLOAD FILE
+@app.route('/evaluation_protocol/<filename>')
+def single_score_file(filename):
+    return send_from_directory('evaluation_protocol', 'single_scores.csv', as_attachment=True)
+
 # CLEAR RESULTS
 @app.route('/clear_results', methods=['POST'])
 def clear_results():
     if os.path.exists('session_file.csv'):
         session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.write("model,method_type,time_elapsed_sec,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
         session_file.close()
     else:
         session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.write("model,method_type,time_elapsed_sec,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
         session_file.close()
     
     if os.path.exists('Exports/output.txt'):

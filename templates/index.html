@@ -82,12 +82,22 @@
             <button type="button" id="Download_button">Download</button>
         </a>
     </div>
+
+    <!-- EXPORT SINGLE SCORE FILE -->
+    <div class="section-wrapper" id="export">
+        <button onclick="export_Single_Score_Results('single_scores')">Export Single Score Results</button>
+        <a href="/evaluation_protocol/single_scores.csv" download="GFG">
+            <button type="button" id="Download_button">Download Single Score</button>
+        </a>
+    </div>
     
-    <div class="section-wrapper" id="export"></div>
+    <div class="section-wrapper" id="export">
+        <hr>
+    </div>
     <br><br>
     
+
     <div class="result-wrapper" id="result">
-        <hr>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -174,8 +184,22 @@
 
     <script>
 
+        function validateForm() {
+            var fileInput = document.querySelector('input[type="file"]');
+            if (!fileInput.files || fileInput.files.length === 0) {
+                alert("Please select a file before submitting.");
+                return false;
+            }
+            return true;
+        }
+
         // Event listener for the form submission
         document.getElementById('upload-form').addEventListener('submit', function (e) {
+            e.preventDefault(); // Prevent the form from submitting normally
+
+            if (!validateForm()){
+                return;
+            }
 
             var fileInput = document.querySelector('input[type="file"]');
             var fileSize = fileInput.files[0].size; // in bytes
@@ -205,6 +229,7 @@
                         document.getElementById('upload-status').innerHTML = response.message;
                     }
                 });
+
             }
         });
 
@@ -267,8 +292,24 @@
             });
         }
 
-        // TODO 
+        // EXPORTING
         function exportResults(functionName) {
+            // Implement export functionality here if needed
+            console.log("Calling function: " + functionName);
+            $.ajax({
+                type: 'POST',
+                url: '/' + functionName,
+                success: function(response) {
+                    console.log("Response: " + response.result);
+                    document.getElementById('export').innerHTML += response.result + '<br>';
+                },
+                error: function(error) {
+                    console.error("Error: " + JSON.stringify(error));
+                }
+            });
+        }
+
+        function export_Single_Score_Results(functionName) {
             // Implement export functionality here if needed
             console.log("Calling function: " + functionName);
             $.ajax({
