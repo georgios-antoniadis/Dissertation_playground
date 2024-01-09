@@ -108,7 +108,8 @@ def score():
     w_complexity = int(scoring_config['complexity'])
     w_naive = int(scoring_config['naive']) 
 
-    print(w_accuracy, w_outliers, w_shape, w_time, w_complexity)
+    # Debugging
+    # print(w_accuracy, w_outliers, w_shape, w_time, w_complexity)
 
     # Naive methods
     best_naive_method, best_naive_score = find_best_naive_method(df, save_file, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
@@ -119,7 +120,7 @@ def score():
     for index, row in df.iterrows():
         single_scoring = single_score(row, df, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
         print(f"Single score of {row['model']}: {single_scoring}")
-        single_scoring += w_naive * (single_scoring - best_naive_score)
+        single_scoring += w_naive * (single_scoring/best_naive_score)
         print(f"Score {row['model']} after naive is accounted for: {single_scoring}")
         print("======================================")
 
