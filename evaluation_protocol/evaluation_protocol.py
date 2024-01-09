@@ -26,7 +26,7 @@ def run_performance_metrics(real, predicted, method_type, method):
 
 # Producing a single score in the end!
 def single_value_score():
-    session_file = pd.read_csv('../session_file.csv')
+    session_file = pd.read_csv('session_file.csv')
     for index, row in session_file.itterows():
         return True
     return True

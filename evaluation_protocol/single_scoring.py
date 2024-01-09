@@ -11,14 +11,14 @@ def normalize(value, min_value, max_value):
     return normalized_value
 
 def acc(row, df):
-    min_rmse = df['rmse'].max()
-    max_rmse = df['rmse'].min()
+    min_rmse = df['rmse'].min()
+    max_rmse = df['rmse'].max()
 
-    min_mae = df['mae'].max()
-    max_mae = df['mae'].min()
+    min_mae = df['mae'].min()
+    max_mae = df['mae'].max()
 
-    min_mse = df['mse'].max()
-    max_mse = df['mse'].min()
+    min_mse = df['mse'].min()
+    max_mse = df['mse'].max()
     
     accuracy_score = (normalize(row['rmse'], min_rmse, max_rmse) 
                     + row['nme'] 
@@ -31,55 +31,72 @@ def acc(row, df):
     return accuracy_score
 
 
-def single_score(row, df, w_accuracy, w_outliers, w_shape, w_time):
+def single_score(row, df, w_accuracy, w_outliers, w_shape, w_time, w_complexity):
     accuracy_score = acc(row, df)
-    min_grubbs = df['grubbs'].max()
-    max_grubbs = df['grubbs'].min()
+    min_grubbs = df['grubbs'].min()
+    max_grubbs = df['grubbs'].max()
 
-    min_shape_similarity = df['shape_similarity'].max()
-    max_shape_similarity = df['shape_similarity'].min()
-
-    min_time = df['time_elapsed_sec'].max()
-    max_time = df['time_elapsed_sec'].min()
+    min_shape_similarity = df['shape_similarity'].min()
+    max_shape_similarity = df['shape_similarity'].max()
     
+    min_time = df['time_elapsed_sec'].min()
+    max_time = df['time_elapsed_sec'].max()
+
     outliers = normalize(row['grubbs'], min_grubbs, max_grubbs)
     time = normalize(row['time_elapsed_sec'], min_time, max_time)
     shape_similarity = normalize(row['shape_similarity'], min_shape_similarity, max_shape_similarity)
+    complexity = row['complexity']
 
-    score = (w_accuracy*accuracy_score) + (w_outliers*outliers) + (w_shape*shape_similarity) + (w_time*time)
+    print(f"""
+        model: {row['model']}
+        accuracy: {accuracy_score}
+        outliers: {outliers}
+        shape: {shape_similarity}
+        time: {time}
+        complexity: {complexity}
+          """)
 
-    return score
+
+    total_single_score = round((w_accuracy*accuracy_score),2) \
+    + round((w_outliers*outliers),2) \
+    - round((w_shape*shape_similarity),2) \
+    - round((w_time*time),2) \
+    + round((w_complexity+complexity),2)
+
+    return total_single_score
 
 
-def find_best_naive_method(df, save_file, w_accuracy, w_outliers, w_shape, w_time):
+def find_best_naive_method(df, save_file, w_accuracy, w_outliers, w_shape, w_time, w_complexity):
     best_naive_method = ''
-    best_score = 1000
+    # Assigning a random very large number
+    best_score = 10e10
 
     for index, row in df.iterrows():
         if row['method_type'] == 'Naive Methods':
             
-            score = single_score(row, df, w_accuracy, w_outliers, w_shape, w_time)
-            save_file.write(f"{row['model']},{score}\n")
-            
-            if score < best_score:
-                best_score = score
+            single_scoring = single_score(row, df, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
+
+            print(f"Single score of {row['model']} is {single_scoring}")
+
+            if single_scoring < best_score:
+                best_score = single_scoring
                 best_naive_method = row['model']
     
     return best_naive_method, best_score
 
 def score():
-    df = pd.read_csv("../session_file.csv")
+    df = pd.read_csv("session_file.csv")
     # csv columns 
     # model,method_type,time_elapsed_sec,memory_usage_mb,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity
     df['model'] = df['model'].replace("predict_","", regex=True)
     
-    save_file = open("single_scores.csv", "w")
+    save_file = open("Exports/single_scores.csv", "w")
     save_file.write("method,score\n")
 
     # Weights 
     #Read config file
     config_object = ConfigParser()
-    config_object.read("../evaluation_protocol/config.ini")
+    config_object.read("config.ini")
 
     #Get the SINGLESCOREINFO section
     scoring_config = config_object["SINGLESCOREINFO"]
@@ -88,28 +105,33 @@ def score():
     w_outliers = int(scoring_config['outliers']) 
     w_shape = int(scoring_config['shape'])  
     w_time = int(scoring_config['time'])
+    w_complexity = int(scoring_config['complexity'])
     w_naive = int(scoring_config['naive']) 
 
-    # Accuracy metrics 
-    acc_metrics = 0.6
+    print(w_accuracy, w_outliers, w_shape, w_time, w_complexity)
+
     # Naive methods
-    best_naive_method, best_naive_score = find_best_naive_method(df, save_file, w_accuracy, w_outliers, w_shape, w_time)
+    best_naive_method, best_naive_score = find_best_naive_method(df, save_file, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
     # print(best_naive_score)
 
+    print(f"Best naive method: {best_naive_method} with a score: {best_naive_score}")
+
     for index, row in df.iterrows():
-        if row['method_type'] not in ['Naive Methods']:
-            score = single_score(row, df, w_accuracy, w_outliers, w_shape, w_time)
-            print(f"{row['model']}:{score}")
-            score += w_naive * (score - best_naive_score)
-            print(f"{row['model']}:{score}")
-            save_file.write(f"{row['model']},{score*10}\n")
+        single_scoring = single_score(row, df, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
+        print(f"Single score of {row['model']}: {single_scoring}")
+        single_scoring += w_naive * (single_scoring - best_naive_score)
+        print(f"Score {row['model']} after naive is accounted for: {single_scoring}")
+        print("======================================")
+
+        save_file.write(f"{row['model']},{round(single_scoring,2)}\n")
 
 
     save_file.close()
+
     try:
-        single_scores_df = pd.read_csv("single_scores.csv") 
+        single_scores_df = pd.read_csv("Exports/single_scores.csv") 
         single_scores_df = single_scores_df.sort_values(by='score')
-        single_scores_df.to_csv("single_scores.csv", index=False)
+        single_scores_df.to_csv("Exports/single_scores.csv", index=False)
         return f"Message: File saved successfully"
     except: 
         return f"Error: File not saved successfully"

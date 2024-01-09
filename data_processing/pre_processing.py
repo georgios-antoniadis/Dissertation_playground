@@ -7,7 +7,7 @@ from datetime import datetime
 def get_file_from_uploads(file_name):
     #Update config file
     config_object = ConfigParser()
-    config_object.read("evaluation_protocol/config.ini")
+    config_object.read("config.ini")
     #Get the SINGLESCOREINFO section
     config = config_object["USERFILE"]
     # request.form works with the elements' names 
@@ -81,7 +81,7 @@ def pre_processing(file_name):
         # ALL FILE PATHS MUST BE MADE WITH REFERENCE TO THEIR RELATIVE PATH COMPARED TO APP.PY
 
         config_object = ConfigParser()
-        config_object.read("evaluation_protocol/config.ini")
+        config_object.read("config.ini")
         
         # open_file = open('evaluation_protocol/test.txt','w')
         # print(open_file.readline())
@@ -95,7 +95,7 @@ def pre_processing(file_name):
         config['passed'] = 'true'
 
         #Write changes back to file
-        with open('evaluation_protocol/config.ini', 'w') as conf:
+        with open('config.ini', 'w') as conf:
             config_object.write(conf)
     
     return str_to_return

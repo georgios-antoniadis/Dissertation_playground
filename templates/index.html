@@ -34,20 +34,23 @@
     
     <div class="section-wrapper" id="sliders">
         <form id="sliderForm">
-            <p><span id="slider_1_value">Accuracy: 2</span></p>
-            <input type="range" id="accuracy_slider" class="config_slider" name="slider1" min="0" max="10" step="1" value="2" oninput="updateSliders()">
+            <p><span id="slider_1_value">Accuracy: 5</span></p>
+            <input type="range" id="accuracy_slider" class="config_slider" name="slider1" min="0" max="10" step="1" value="5" oninput="updateSliders()">
 
-            <p><span id="slider_2_value">Outliers: 2</span></p>
-            <input type="range" id="outliers_slider" class="config_slider" name="slider2" min="0" max="10" step="1" value="2" oninput="updateSliders()">
+            <p><span id="slider_2_value">Outliers: 5</span></p>
+            <input type="range" id="outliers_slider" class="config_slider" name="slider2" min="0" max="10" step="1" value="5" oninput="updateSliders()">
 
-            <p><span id="slider_3_value">Shape similarity: 2</span></p>
-            <input type="range" id="shape_slider" class="config_slider" name="slider3" min="0" max="10" step="1" value="2" oninput="updateSliders()">
+            <p><span id="slider_3_value">Shape similarity: 5</span></p>
+            <input type="range" id="shape_slider" class="config_slider" name="slider3" min="0" max="10" step="1" value="5" oninput="updateSliders()">
 
-            <p><span id="slider_4_value">Execution time: 2</span></p>
-            <input type="range" id="time_slider" class="config_slider" name="slider4" min="0" max="10" step="1" value="2" oninput="updateSliders()">
+            <p><span id="slider_4_value">Execution time: 5</span></p>
+            <input type="range" id="time_slider" class="config_slider" name="slider4" min="0" max="10" step="1" value="5" oninput="updateSliders()">
 
-            <p><span id="slider_5_value">Improvement over naive methods: 2</span></p>
-            <input type="range" id="naive_slider" class="config_slider" name="slider5" min="0" max="10" step="1" value="2" oninput="updateSliders()">
+            <p><span id="slider_5_value">Complexity: 5</span></p>
+            <input type="range" id="complexity_slider" class="config_slider" name="slider5" min="0" max="10" step="1" value="5" oninput="updateSliders()">
+
+            <p><span id="slider_6_value">Improvement over naive methods: 5</span></p>
+            <input type="range" id="naive_slider" class="config_slider" name="slider6" min="0" max="10" step="1" value="5" oninput="updateSliders()">
 
 
             <p>Total: <span id="total">0</span></p>
@@ -70,13 +73,13 @@
 
     <div class="section-wrapper" id="results">
         <h3>Results</h3>
-        <button onclick="clearAdditionalElements('clear_results')">Clear results</button>
+        <button onclick="clearAdditionalElements('clear_results')">Clear session</button>
     </div>
 
     <br><br>
     
     <!-- EXPORT -->
-    <div class="section-wrapper" id="export">
+    <div class="section-wrapper" id="Measurements_export">
         <button onclick="exportResults('export_results')">Export Results</button>
         <a href="/Exports/output.txt" download="GFG">
             <button type="button" id="Download_button">Download</button>
@@ -84,20 +87,20 @@
     </div>
 
     <!-- EXPORT SINGLE SCORE FILE -->
-    <div class="section-wrapper" id="export">
-        <button onclick="export_Single_Score_Results('single_scores')">Export Single Score Results</button>
-        <a href="/evaluation_protocol/single_scores.csv" download="GFG">
+    <div class="section-wrapper" id="Single_value_export">
+        <button onclick="exportResults('single_scores')">Export Single Score Results</button>
+        <a href="/Exports/single_scores.csv" download="GFG">
             <button type="button" id="Download_button">Download Single Score</button>
         </a>
     </div>
     
-    <div class="section-wrapper" id="export">
-        <hr>
+    <div class="section-wrapper" id="Export_responses">
     </div>
     <br><br>
     
 
     <div class="result-wrapper" id="result">
+        <hr>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -117,72 +120,69 @@
         };
     </script>
 
-    <!-- Controlling sliders  -->
     <script>
+
+        // Event listener for the sliders
+        document.getElementById('sliderForm').addEventListener('submit', function (e) {
+        
+        var accuracy_slider = parseInt(document.getElementById("accuracy_slider").value);
+        var outliers_slider = parseInt(document.getElementById("outliers_slider").value);
+        var shape_slider = parseInt(document.getElementById("shape_slider").value);
+        var time_slider = parseInt(document.getElementById("time_slider").value);
+        var complexity_slider = parseInt(document.getElementById("complexity_slider").value);
+        var naive_slider = parseInt(document.getElementById("naive_slider").value);
+
+        var total = accuracy_slider + outliers_slider + shape_slider + time_slider + complexity_slider + naive_slider;
+
+        if (total == 0) {
+            alert("Sliders total should not be 0!");
+            e.preventDefault(); // Prevent the form from submitting
+            return;
+        }
+        else{
+            // For is submitted and the sliders can be referenced via the sliders' name! 
+            var formData = new FormData(this); 
+            e.preventDefault(); 
+            $.ajax({
+                type: 'POST',
+                url: '/slider-form',
+                data: formData,
+                contentType: false,
+                processData: false,
+                success: function(response) {
+                    console.log(response.message)
+                },
+                error: function(response) {
+                    console.log(response.message)
+                }
+            });
+        }
+        });
+
         function updateSliders() {
             var accuracy_slider = parseInt(document.getElementById("accuracy_slider").value);
             var outliers_slider = parseInt(document.getElementById("outliers_slider").value);
             var shape_slider = parseInt(document.getElementById("shape_slider").value);
             var time_slider = parseInt(document.getElementById("time_slider").value);
+            var complexity_slider = parseInt(document.getElementById("complexity_slider").value);
             var naive_slider = parseInt(document.getElementById("naive_slider").value);
 
             document.getElementById("slider_1_value").innerText = "Accuracy: "  + accuracy_slider;
             document.getElementById("slider_2_value").innerText = "Outliers: "  + outliers_slider;
             document.getElementById("slider_3_value").innerText = "Shape similarity: "  + shape_slider;
             document.getElementById("slider_4_value").innerText = "Execution time: "  + time_slider;
-            document.getElementById("slider_5_value").innerText = "Improvement over naive methods: "  + naive_slider;
+            document.getElementById("slider_5_value").innerText = "Complexity: "  + complexity_slider;
+            document.getElementById("slider_6_value").innerText = "Improvement over naive methods: "  + naive_slider;
 
-            total = accuracy_slider + outliers_slider + shape_slider + time_slider + naive_slider;
+            total = accuracy_slider + outliers_slider + shape_slider + time_slider + complexity_slider + naive_slider;
 
-            if (total > 10){
+            if (total == 0){
                 document.getElementById("total").innerText = total + " !";
             }
             else {
                 document.getElementById("total").innerText = total;
             }
         }
-    </script>
-
-    <script>
-        // Event listener for the sliders
-        document.getElementById('sliderForm').addEventListener('submit', function (e) {
-        
-            var accuracy_slider = parseInt(document.getElementById("accuracy_slider").value);
-            var outliers_slider = parseInt(document.getElementById("outliers_slider").value);
-            var shape_slider = parseInt(document.getElementById("shape_slider").value);
-            var time_slider = parseInt(document.getElementById("time_slider").value);
-            var naive_slider = parseInt(document.getElementById("naive_slider").value);
-
-            var total = accuracy_slider + outliers_slider + shape_slider + time_slider + naive_slider;
-
-            if (total > 10) {
-                alert("Sliders total should equal to or less than 10!");
-                e.preventDefault(); // Prevent the form from submitting
-                return;
-            }
-            else{
-                var formData = new FormData(this); // Create a FormData object
-                e.preventDefault(); 
-                $.ajax({
-                    type: 'POST',
-                    url: '/slider-form',
-                    data: formData,
-                    contentType: false,
-                    processData: false,
-                    success: function(response) {
-                        console.log(response.message)
-                    },
-                    error: function(response) {
-                        console.log(response.message)
-                    }
-                });
-            }
-        
-        });
-
-    </script>
-
-    <script>
 
         function validateForm() {
             var fileInput = document.querySelector('input[type="file"]');
@@ -255,26 +255,11 @@
             });
         }
 
-        // document.getElementById('model_button').addEventListener('mouseover', function() {
-        //     // Fetch the contents of "sample.txt" and set the title attribute
-        //     const currentContent = document.getElementById(elementId).textContent;
-        //     const buttonId = document.getElementsByClassName(elementId).elementId;
-        //     fetchAndSetTitle(currentContent, buttonId);
-        // });
-
 
         // Read more button
         const modal = document.querySelector('#modal');
         const openModal = document.querySelector('.open-button');
         const closeModal = document.querySelector('.close-button');
-
-        // openModal.addEventListener('click',()=>{
-        //     modal.showModal();
-        // })
-
-        // closeModal.addEventListener('click',()=>{
-        //     modal.close();
-        // })
 
          // Function that communicates with python
          function uploadFile(functionName) {
@@ -300,24 +285,8 @@
                 type: 'POST',
                 url: '/' + functionName,
                 success: function(response) {
+                    document.getElementById('Export_responses').innerHTML += response.result + '<br>';
                     console.log("Response: " + response.result);
-                    document.getElementById('export').innerHTML += response.result + '<br>';
-                },
-                error: function(error) {
-                    console.error("Error: " + JSON.stringify(error));
-                }
-            });
-        }
-
-        function export_Single_Score_Results(functionName) {
-            // Implement export functionality here if needed
-            console.log("Calling function: " + functionName);
-            $.ajax({
-                type: 'POST',
-                url: '/' + functionName,
-                success: function(response) {
-                    console.log("Response: " + response.result);
-                    document.getElementById('export').innerHTML += response.result + '<br>';
                 },
                 error: function(error) {
                     console.error("Error: " + JSON.stringify(error));

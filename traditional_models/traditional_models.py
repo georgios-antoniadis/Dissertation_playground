@@ -17,7 +17,9 @@ def predict_arima(series,forecast_periods):
 
     future_predictions = arima_results.get_forecast(steps=forecast_periods)
 
-    return future_predictions.predicted_mean
+    complexity = 3
+
+    return future_predictions.predicted_mean, complexity
 
 
 def predict_theta(series, h):
@@ -27,10 +29,15 @@ def predict_theta(series, h):
     theta_0 = series.iloc[0]
     theta_1 = series.iloc[1]
 
-    # Forecast using the Theta model formula
-    forecasts = theta_0 + np.arange(1, h+1) * ((theta_1 - theta_0) / 1)  # 1 is the time step between observations
+    step_between_observations = 1
 
-    return forecasts
+    # Forecast using the Theta model formula
+    forecasts = theta_0 + np.arange(1, h+1) * ((theta_1 - theta_0) / step_between_observations)  # 1 is the time step between observations
+
+    # step_between_observations
+    complexity = 1
+
+    return forecasts, complexity
 
 
 def predict_ets(train, test):
@@ -51,4 +58,7 @@ def predict_ets(train, test):
     # Make predictions on the test set
     predictions = result.forecast(len(test))
 
-    return predictions
+    # trend, seasonal, seasonal_periods 
+    complexity = 3
+
+    return predictions, complexity

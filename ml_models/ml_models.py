@@ -19,4 +19,7 @@ def predict_prophet_model(train, test):
 
     predicted = forecast['yhat'][-future_preds:]
 
-    return predicted
+    # Interval width 
+    complexity = 1
+
+    return predicted, complexity

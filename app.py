@@ -11,8 +11,6 @@ from tkinter import filedialog
 
 # My custom evaluation protocol
 from evaluation_protocol.grubbs import grubbs_score
-from evaluation_protocol.mape import mape
-from evaluation_protocol.smape import smape
 from evaluation_protocol.shape_similarity import dtw
 from evaluation_protocol.result_string import eval_string
 from evaluation_protocol.performance_metrics import rmse, nme, mae, mse, mape, smape
@@ -40,27 +38,29 @@ user_dataset_file = ''
 alpha = 0.05
 
 # Printing the evaluation protocol string
-def scoring(predicted, real, method_type, method, elapsed_time_sec,):
+def scoring(predicted, real, method_type, method, elapsed_time_sec, complexity):
     if os.path.exists('session_file.csv'):
         session_file = open('session_file.csv', 'a')
     else:
         session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.write("model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
 
-    str_to_write = f"{method},{method_type},{elapsed_time_sec},"
+    str_to_write = f"{method},{method_type},{elapsed_time_sec},{complexity},"
 
-    rmse_score = rmse(predicted, real)
-    nme_score = nme(predicted, real)
-    mae_score = mae(predicted, real)
-    mse_score = mse(predicted, real)
-    mape_score = mape(predicted, real)
-    smape_score = smape(predicted, real)
+    rmse_score = round(rmse(predicted, real),2)
+    nme_score = round(nme(predicted, real),2)
+    mae_score = round(mae(predicted, real),2)
+    mse_score = round(mse(predicted, real),2)
+    mape_score = round(mape(predicted, real),2)
+    smape_score = round(smape(predicted, real),2)
 
     if method_type == 'Naive Methods' and method != 'random_walk':
         grubbs_test_score = 0
     else:
         grubbs_test_score = grubbs_score(predicted, real, alpha)
-    shape_similarity_score = dtw(predicted, real)
+    shape_similarity_score = round(dtw(predicted, real),2)
+
+
 
     str_to_write += f"{rmse_score},{nme_score},{mae_score},{mse_score},{mape_score},{smape_score},{grubbs_test_score},{shape_similarity_score}\n"
     session_file.write(str_to_write)
@@ -73,12 +73,12 @@ def run_models(module_name, train, test, real, method_type):
         if callable(function) and name.startswith('predict_'):
             # Please note that mem usage wraps botth the function and the time measurement!
             start_time = time.time()
-            predicted = function(train, test)
+            predicted, complexity = function(train, test)
             end_time = time.time()
             # Memory usage is in mb while elapsed time is in seconds! 
             elapsed_time = end_time - start_time
 
-            scoring(predicted, real, method_type, name, elapsed_time)
+            scoring(predicted, real, method_type, name, elapsed_time, complexity)
     
     string_to_return = eval_string()
 
@@ -126,7 +126,7 @@ def allowed_file(filename):
 
 def pre_processing_passed():
     pre_processing_check_config_object = ConfigParser()
-    pre_processing_check_config_object.read("evaluation_protocol/config.ini")
+    pre_processing_check_config_object.read("config.ini")
 
     #Get the SINGLESCOREINFO section
     config = pre_processing_check_config_object["PREPROCESSING"]
@@ -139,7 +139,7 @@ def pre_processing_passed():
     
 def naive_run():
     check_config_object = ConfigParser()
-    check_config_object.read("evaluation_protocol/config.ini")
+    check_config_object.read("config.ini")
 
     #Get the SINGLESCOREINFO section
     config = check_config_object["MODELS"]
@@ -154,12 +154,12 @@ def naive_run():
 def reset_config_file():
     # Update config file for confirm that naive methods have run 
     config_object = ConfigParser()
-    config_object.read("evaluation_protocol/config.ini")
+    config_object.read("config.ini")
     #Get the PREPROCESSING section
     config = config_object["MODELS"]
     config['has_naive_run'] = 'false'
     #Write changes back to file
-    with open('evaluation_protocol/config.ini', 'w') as conf:
+    with open('config.ini', 'w') as conf:
         config_object.write(conf)
     
     config = config_object["SINGLESCOREINFO"]
@@ -169,19 +169,19 @@ def reset_config_file():
     config['time'] = '2'
     config['naive'] = '2'
     #Write changes back to file
-    with open('evaluation_protocol/config.ini', 'w') as conf:
+    with open('config.ini', 'w') as conf:
         config_object.write(conf)
 
     config = config_object["PREPROCESSING"]
     config['passed'] = 'false'
     #Write changes back to file
-    with open('evaluation_protocol/config.ini', 'w') as conf:
+    with open('config.ini', 'w') as conf:
         config_object.write(conf)
     
     config = config_object["USERFILE"]
     config['file_path'] = 'empty'
     #Write changes back to file
-    with open('evaluation_protocol/config.ini', 'w') as conf:
+    with open('config.ini', 'w') as conf:
         config_object.write(conf)
 
 @app.route('/')
@@ -216,13 +216,13 @@ def upload_file():
 
     #Update config file
     config_object = ConfigParser()
-    config_object.read("evaluation_protocol/config.ini")
+    config_object.read("config.ini")
     #Get the SINGLESCOREINFO section
     config = config_object["USERFILE"]
     # request.form works with the elements' names 
     config['file_path'] = os.path.join('uploads', file.filename)
     #Write changes back to file
-    with open('evaluation_protocol/config.ini', 'w') as conf:
+    with open('config.ini', 'w') as conf:
         config_object.write(conf)
 
 
@@ -239,27 +239,30 @@ def upload_file():
 def single_scoring_config():
     #Read config file
     scoring_config_object = ConfigParser()
-    scoring_config_object.read("evaluation_protocol/config.ini")
+    scoring_config_object.read("config.ini")
 
     #Get the SINGLESCOREINFO section
     scoring_config = scoring_config_object["SINGLESCOREINFO"]
 
-    print(f"Current values are:\n \
-          accuracy:{scoring_config['accuracy']},\n \
-          outlier:{scoring_config['outliers']},\n \
-          shape:{scoring_config['shape']},\n \
-          time:{scoring_config['time']},\n \
-          naive:{scoring_config['naive']}")
+    # Logging 
+    print(f"""Current vs New values: 
+    accuracy: {scoring_config['accuracy']} | {request.form['slider1']} 
+    outlier: {scoring_config['outliers']} | {request.form['slider2']} 
+    shape: {scoring_config['shape']} | {request.form['slider3']} 
+    time: {scoring_config['time']} | {request.form['slider4']} 
+    complexity: {scoring_config['complexity']} | {request.form['slider5']} 
+    naive: {scoring_config['naive']} | {request.form['slider6']}""")
 
     # request.form works with the elements' names 
     scoring_config['accuracy'] = request.form['slider1']
     scoring_config['outliers'] = request.form['slider2']
     scoring_config['shape'] = request.form['slider3']
     scoring_config['time'] = request.form['slider4']
-    scoring_config['naive'] = request.form['slider5']
+    scoring_config['complexity'] = request.form['slider5']
+    scoring_config['naive'] = request.form['slider6']
 
     #Write changes back to file
-    with open('evaluation_protocol/config.ini', 'w') as conf:
+    with open('config.ini', 'w') as conf:
         scoring_config_object.write(conf)
 
     return jsonify({'message': 'Config file updated!'})
@@ -305,12 +308,12 @@ def naive_methods():
 
         # Update config file for confirm that naive methods have run 
         config_object = ConfigParser()
-        config_object.read("evaluation_protocol/config.ini")
+        config_object.read("config.ini")
         #Get the PREPROCESSING section
         config = config_object["MODELS"]
         config['has_naive_run'] = 'true'
         #Write changes back to file
-        with open('evaluation_protocol/config.ini', 'w') as conf:
+        with open('config.ini', 'w') as conf:
             config_object.write(conf)
 
         return jsonify({'result':render_template_string('<pre>{{ data | safe }}</pre>', data=result)})
@@ -328,7 +331,7 @@ def export_results():
     export_file.write(datetime.now().strftime("%m/%d/%Y, %H:%M"))
     export_file.write("\n")
     config_object = ConfigParser()
-    config_object.read("evaluation_protocol/config.ini")
+    config_object.read("config.ini")
     config = config_object["USERFILE"]
     export_file.write(f"Dataset: {config['file_path'].split(r'uploads/')[1]}")
     export_file.write("\n")
@@ -342,27 +345,32 @@ def export_results():
     export_file.close()
     return jsonify({'result': 'File exported successfully -> Click "Download"'})
 
+@app.route('/single_scores', methods=['POST'])
+def export_single_scores():
+    score()
+    return jsonify({'result': 'Single scores file exported successfully -> Click "Download Single file"'})
+
 
 # DOWNLOAD FILE
 @app.route('/Exports/<filename>')
 def download_file(filename):
     return send_from_directory('Exports', filename, as_attachment=True)
 
-# DOWNLOAD FILE
-@app.route('/evaluation_protocol/<filename>')
-def single_score_file(filename):
-    return send_from_directory('evaluation_protocol', 'single_scores.csv', as_attachment=True)
+# # DOWNLOAD FILE
+# @app.route('/Exports/<filename>')
+# def single_score_file(filename):
+#     return send_from_directory('Exports', 'single_scores.csv', as_attachment=True)
 
 # CLEAR RESULTS
 @app.route('/clear_results', methods=['POST'])
 def clear_results():
     if os.path.exists('session_file.csv'):
         session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.write("model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
         session_file.close()
     else:
         session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+        session_file.write("model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
         session_file.close()
     
     if os.path.exists('Exports/output.txt'):
