@@ -1,6 +1,8 @@
 import pandas as pd
 # Config files
 from configparser import ConfigParser
+from tabulate import tabulate
+
 
 
 def normalize(value, min_value, max_value):
@@ -28,6 +30,17 @@ def acc(row, df):
                     + row['smape']
                     ) / 6
 
+    # Debugging
+    print(f"""
+{row['model']}
+RMSE: {normalize(row['rmse'], min_rmse, max_rmse)} 
+NME: {row['nme']}
+MAE: {normalize(row['mae'], min_mae, max_mae)}
+MSE: {normalize(row['mse'], min_mse, max_mse)} 
+MAPE: {row['mape']} 
+SMAPE: {row['smape']}
+""")
+
     return accuracy_score
 
 
@@ -47,13 +60,14 @@ def single_score(row, df, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
     shape_similarity = normalize(row['shape_similarity'], min_shape_similarity, max_shape_similarity)
     complexity = row['complexity']
 
+    # Debugging 
     print(f"""
-        model: {row['model']}
-        accuracy: {accuracy_score}
-        outliers: {outliers}
-        shape: {shape_similarity}
-        time: {time}
-        complexity: {complexity}
+model: {row['model']}
+accuracy: {accuracy_score}
+outliers: {outliers}
+shape: {shape_similarity}
+time: {time}
+complexity: {complexity}
           """)
 
 
@@ -119,10 +133,13 @@ def score():
 
     for index, row in df.iterrows():
         single_scoring = single_score(row, df, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
+        
+        # Debugging
         print(f"Single score of {row['model']}: {single_scoring}")
         single_scoring += w_naive * (single_scoring/best_naive_score)
         print(f"Score {row['model']} after naive is accounted for: {single_scoring}")
         print("======================================")
+        print("")
 
         save_file.write(f"{row['model']},{round(single_scoring,2)}\n")
 
@@ -133,6 +150,13 @@ def score():
         single_scores_df = pd.read_csv("Exports/single_scores.csv") 
         single_scores_df = single_scores_df.sort_values(by='score')
         single_scores_df.to_csv("Exports/single_scores.csv", index=False)
+
+        df = pd.read_csv("Exports/single_scores.csv")
+        string_to_return = tabulate(df, headers='keys', tablefmt="grid")
+        single_scores_txt = open("Exports/single_scores.txt","w")
+        single_scores_txt.write(string_to_return)
+        single_scores_txt.close()
+
         return f"Message: File saved successfully"
     except: 
         return f"Error: File not saved successfully"

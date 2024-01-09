@@ -8,6 +8,7 @@ from memory_profiler import profile, memory_usage
 from datetime import date, datetime
 # import filedialog module
 from tkinter import filedialog
+import shutil
 
 # My custom evaluation protocol
 from evaluation_protocol.grubbs import grubbs_score
@@ -32,10 +33,16 @@ export = 'This is the export file'
 train_file = 'Dataset/Yearly-train.csv'
 test_file = 'Dataset/Yearly-test.csv'
 
-user_dataset_file = ''
+def get_user_file():
+    pre_processing_check_config_object = ConfigParser()
+    pre_processing_check_config_object.read("config.ini")
 
-# For grubbs score 
-alpha = 0.05
+    #Get the SINGLESCOREINFO section
+    config = pre_processing_check_config_object["USERFILE"]
+    user_dataset_file = config['file_path']
+
+    return user_dataset_file
+
 
 # Printing the evaluation protocol string
 def scoring(predicted, real, method_type, method, elapsed_time_sec, complexity):
@@ -57,7 +64,7 @@ def scoring(predicted, real, method_type, method, elapsed_time_sec, complexity):
     if method_type == 'Naive Methods' and method != 'random_walk':
         grubbs_test_score = 0
     else:
-        grubbs_test_score = grubbs_score(predicted, real, alpha)
+        grubbs_test_score = grubbs_score(predicted, real)
     shape_similarity_score = round(dtw(predicted, real),2)
 
 
@@ -96,8 +103,7 @@ def import_test_data():
     return train, test
 
 def split_user_data():
-
-    user_data_df = pd.read_csv(user_dataset_file)
+    user_data_df = pd.read_csv(get_user_file())
 
     # 70-30 split with no fancy means
     split_index = int(0.7 * len(user_data_df))
@@ -108,7 +114,10 @@ def split_user_data():
     return train, test
 
 def use_user_dataset():
-    if user_dataset_file == '':
+
+    user_dataset_file = get_user_file()
+
+    if user_dataset_file == 'empty':
         train, test = import_test_data()
     else:
         train, test = split_user_data()
@@ -163,11 +172,11 @@ def reset_config_file():
         config_object.write(conf)
     
     config = config_object["SINGLESCOREINFO"]
-    config['accuracy'] = '2'
-    config['outliers'] = '2'
-    config['shape'] = '2'
-    config['time'] = '2'
-    config['naive'] = '2'
+    config['accuracy'] = '5'
+    config['outliers'] = '5'
+    config['shape'] = '5'
+    config['time'] = '5'
+    config['naive'] = '5'
     #Write changes back to file
     with open('config.ini', 'w') as conf:
         config_object.write(conf)
@@ -183,6 +192,30 @@ def reset_config_file():
     #Write changes back to file
     with open('config.ini', 'w') as conf:
         config_object.write(conf)
+
+
+@app.before_first_request
+def clear_session():
+    try:
+        if os.path.exists('session_file.csv'):
+            session_file = open('session_file.csv', 'w')
+            session_file.write("model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+            session_file.close()
+        else:
+            session_file = open('session_file.csv', 'w')
+            session_file.write("model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
+            session_file.close()
+        
+        if os.path.exists('Exports/output.txt'):
+            output_file = open("Exports/output.txt", "w")
+            output_file.write("This is an empty output file!")
+            output_file.close()
+
+        #Reseting the session file
+        reset_config_file()
+
+    except:
+        print("Session reset failed!")
 
 @app.route('/')
 def index():
@@ -214,6 +247,9 @@ def upload_file():
     if not allowed_file(file.filename):
         return jsonify({'error': 'Invalid file extension', 'file extenstion': file.filename})
 
+    shutil.copy(file.filename, "uploads")
+
+
     #Update config file
     config_object = ConfigParser()
     config_object.read("config.ini")
@@ -224,7 +260,6 @@ def upload_file():
     #Write changes back to file
     with open('config.ini', 'w') as conf:
         config_object.write(conf)
-
 
     pre_processing_result = pre_processing(file.filename)
 
@@ -244,7 +279,7 @@ def single_scoring_config():
     #Get the SINGLESCOREINFO section
     scoring_config = scoring_config_object["SINGLESCOREINFO"]
 
-    # Logging 
+    # Debugging 
     print(f"""Current vs New values: 
     accuracy: {scoring_config['accuracy']} | {request.form['slider1']} 
     outlier: {scoring_config['outliers']} | {request.form['slider2']} 
@@ -348,7 +383,7 @@ def export_results():
 @app.route('/single_scores', methods=['POST'])
 def export_single_scores():
     score()
-    return jsonify({'result': 'Single scores file exported successfully -> Click "Download Single file"'})
+    return jsonify({'result': 'Single scores file exported successfully -> Click "Download Single Score"'})
 
 
 # DOWNLOAD FILE
@@ -356,31 +391,10 @@ def export_single_scores():
 def download_file(filename):
     return send_from_directory('Exports', filename, as_attachment=True)
 
-# # DOWNLOAD FILE
-# @app.route('/Exports/<filename>')
-# def single_score_file(filename):
-#     return send_from_directory('Exports', 'single_scores.csv', as_attachment=True)
-
 # CLEAR RESULTS
 @app.route('/clear_results', methods=['POST'])
 def clear_results():
-    if os.path.exists('session_file.csv'):
-        session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
-        session_file.close()
-    else:
-        session_file = open('session_file.csv', 'w')
-        session_file.write("model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity\n")
-        session_file.close()
-    
-    if os.path.exists('Exports/output.txt'):
-        output_file = open("Exports/output.txt", "w")
-        output_file.write("This is an empty output file!")
-        output_file.close()
-
-    #Reseting the session file
-    reset_config_file()
-
+    clear_session()
     return jsonify({'result': 'File clear successfully -> session_file.csv'})
 
 

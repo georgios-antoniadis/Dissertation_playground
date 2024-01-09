@@ -37,7 +37,7 @@ def mape(y_true, y_pred):
     mape_sum = 0
     for i in range(n):
         mape_sum += np.abs((y_pred[i] - y_true[i]) / y_true[i])
-    mape = (100 / n) * np.sum(mape_sum)
+    mape = (1 / n) * np.sum(mape_sum)
     return mape
 
 def smape(y_true, y_pred):
@@ -51,14 +51,10 @@ def smape(y_true, y_pred):
         y_true = y_true.tolist()
     elif type(y_pred) != list:
         y_pred = y_pred.tolist()
-
-    # Debugging
-    # print(f"Predictions type: {type(y_pred)}")
-    # print(f"Label data type: {type(y_true)}")
-
+        
     n = len(y_true)
     smape_sum = 0
     for i in range(n):
         smape_sum += (np.abs(y_pred[i] - y_true[i])) / ((np.abs(y_true[i]) + np.abs(y_pred[i])) / 2)
-    smape = (100 / n) * np.sum(smape_sum)
+    smape = (1 / n) * np.sum(smape_sum)
     return smape

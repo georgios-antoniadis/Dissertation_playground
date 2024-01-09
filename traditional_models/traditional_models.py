@@ -60,5 +60,5 @@ def predict_ets(train, test):
 
     # trend, seasonal, seasonal_periods 
     complexity = 3
-
+    
     return predictions, complexity

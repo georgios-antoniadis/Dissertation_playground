@@ -53,7 +53,7 @@
             <input type="range" id="naive_slider" class="config_slider" name="slider6" min="0" max="10" step="1" value="5" oninput="updateSliders()">
 
 
-            <p>Total: <span id="total">0</span></p>
+            <p>Total: <span id="total">30</span></p>
             <input type="submit" value="Submit">
         </form>
     </div>
@@ -89,18 +89,18 @@
     <!-- EXPORT SINGLE SCORE FILE -->
     <div class="section-wrapper" id="Single_value_export">
         <button onclick="exportResults('single_scores')">Export Single Score Results</button>
-        <a href="/Exports/single_scores.csv" download="GFG">
+        <a href="/Exports/single_scores.txt" download="GFG">
             <button type="button" id="Download_button">Download Single Score</button>
         </a>
     </div>
     
     <div class="section-wrapper" id="Export_responses">
+        <hr>
     </div>
     <br><br>
     
 
     <div class="result-wrapper" id="result">
-        <hr>
     </div>
 
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
@@ -303,8 +303,12 @@
                 success: function(response) {
                     console.log("Response: " + response.result);
                     var resultDiv = document.getElementById('result');
+                    var exportDiv = document.getElementById('Export_responses');
+                    var uploadDiv = document.getElementById('upload-status');
                     // Clear its content
                     resultDiv.innerHTML = '';
+                    exportDiv.innerHTML = '';
+                    uploadDiv.innerHTML = '';
                 },
                 error: function(error) {
                     console.error("Error: " + JSON.stringify(error));
