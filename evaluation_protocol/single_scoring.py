@@ -4,7 +4,6 @@ from configparser import ConfigParser
 from tabulate import tabulate
 
 
-
 def normalize(value, min_value, max_value):
     if value == 0:
         normalized_value = 0

@@ -9,6 +9,7 @@ from datetime import date, datetime
 # import filedialog module
 from tkinter import filedialog
 import shutil
+from tabulate import tabulate
 
 # My custom evaluation protocol
 from evaluation_protocol.grubbs import grubbs_score
@@ -61,6 +62,9 @@ def scoring(predicted, real, method_type, method, elapsed_time_sec, complexity):
     mape_score = round(mape(predicted, real),2)
     smape_score = round(smape(predicted, real),2)
 
+    # The current implementation of finding outliers, Grubbs, fails when all of the predicted values 
+    # are the same since it causes a division by zero. Thus naive methods that predict the same value
+    # are not automatically assigned a score of 0
     if method_type == 'Naive Methods' and method != 'random_walk':
         grubbs_test_score = 0
     else:
@@ -84,6 +88,10 @@ def run_models(module_name, train, test, real, method_type):
             end_time = time.time()
             # Memory usage is in mb while elapsed time is in seconds! 
             elapsed_time = end_time - start_time
+
+            # Debugging
+            # Expected object types: List / Pandas series
+            # print(f"Predicted values type: {type(predicted)}")
 
             scoring(predicted, real, method_type, name, elapsed_time, complexity)
     
@@ -383,7 +391,10 @@ def export_results():
 @app.route('/single_scores', methods=['POST'])
 def export_single_scores():
     score()
-    return jsonify({'result': 'Single scores file exported successfully -> Click "Download Single Score"'})
+    df = pd.read_csv("Exports/single_scores.csv")
+    string_to_return = tabulate(df, headers='keys', tablefmt="grid")
+    return jsonify({'result': 'Single scores file exported successfully -> Click "Download Single Score"',
+                    'export': render_template_string('<pre>{{ data | safe }}</pre>', data=string_to_return)})
 
 
 # DOWNLOAD FILE

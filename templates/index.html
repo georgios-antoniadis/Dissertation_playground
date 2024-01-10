@@ -286,7 +286,9 @@
                 url: '/' + functionName,
                 success: function(response) {
                     document.getElementById('Export_responses').innerHTML += response.result + '<br>';
+                    document.getElementById('result').insertAdjacentHTML('afterbegin', response.export);
                     console.log("Response: " + response.result);
+                    console.log("Export: " + response.export);
                 },
                 error: function(error) {
                     console.error("Error: " + JSON.stringify(error));

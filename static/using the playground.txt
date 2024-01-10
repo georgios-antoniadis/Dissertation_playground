@@ -8,7 +8,11 @@
 <p>Click on the available model buttons depending on the ones you want to test with. Allow the application to fetch you the results before clicking on another button</p>
 <h2>(4)Output</h2>
 <p>An export preview will be available at the bottom of the page as soon as you experiment with the model(s)</p>
+<p>To preview the single score rankings click on "Export Single Score Results"</p>
 <h2>(5)Export</h2>
 <p>To export the results seen on the browser, click on "Export results" and then "Download" as soon as the corresponding message appears</p>
+<p>You can do the same for single scores too!</p>
 <h2>(6)Clearing</h2>
-<p>You can clear the output and consequently the export by clicking "Clear results"</p>
+<p>You can clear the session by clicking "Clear session"</p>
+<p>Users are recommended to clear their sessions prior to using a new dataset.</p>
+<p>Experimenting with models for more than one time will cause duplicate results so users are recommended to clear their session prior to using the model buttons twice.</p>

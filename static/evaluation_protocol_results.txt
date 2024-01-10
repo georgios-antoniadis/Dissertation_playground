@@ -1,0 +1,7 @@
+<h1>Evaluation protocol</h1>
+<h2>General results</h2>
+<p>The single score attributed to each model is non-quantifiable</p>
+<p>However, a user can expect the following (assuming an equal weighting of 5)</p>
+<p>Any score below 3 is a great score, indicating an accurate, fast and of medium complexity model</p>
+<p>A score between 6 and 10 is average</p>
+<p>Any score below below 11 is bad and models typically do not meet the specified requirements</p>

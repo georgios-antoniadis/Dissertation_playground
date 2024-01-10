@@ -18,6 +18,10 @@
         <hr>
     </div>
 
+    <div class="section-wrapper" id="Evaluation_protocol_results">
+        
+    </div>
+
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Navbar -->
@@ -34,6 +38,31 @@
             location.href = "{{ url_for('report') }}";
         };
     </script>
+
+<script>
+
+    fetch("static/evaluation_protocol_results.txt")
+    .then(response => response.text())
+    .then(data => {
+        // Set the title attribute using the fetched data
+        document.getElementById('Evaluation_protocol_results').innerHTML = data;
+    })
+
+
+     // Read more button
+    const modal = document.querySelector('#modal');
+    const openModal = document.querySelector('.open-button');
+    const closeModal = document.querySelector('.close-button');
+
+    openModal.addEventListener('click',()=>{
+        modal.showModal();
+    })
+
+    closeModal.addEventListener('click',()=>{
+        modal.close();
+    })
+
+</script>
 
 </body>
 </html>
