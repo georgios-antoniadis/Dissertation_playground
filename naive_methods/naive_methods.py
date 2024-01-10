@@ -13,8 +13,6 @@ def predict_mean(train, test):
     return naive_predictions, complexity
 
 def predict_random_walk(train, test):
-    # Debugging
-    # print(input_data[0])
     train = train['target'].tolist()
     last_value = train[-1]
     current_value = last_value

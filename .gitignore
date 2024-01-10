@@ -1,5 +1,7 @@
 output.txt
-/Dataset
+Dataset/yearly_24_test.h5
+Dataset/yearly_24_train.h5
+Dataset/yearly_24.h5
 first_timeseries_test.csv
 first_timeseries.csv
 test_dataset.ipynb
@@ -9,3 +11,6 @@ sample_dataset.csv
 session_file.csv
 /Archive
 /testing
+Exports/*.zip
+Exports/*.txt
+Uploads/*.csv

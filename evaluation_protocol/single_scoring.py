@@ -3,7 +3,7 @@ import pandas as pd
 from configparser import ConfigParser
 from tabulate import tabulate
 
-
+# Normalization is based on the scores of the rest of the models 
 def normalize(value, min_value, max_value):
     if value == 0:
         normalized_value = 0
@@ -11,6 +11,7 @@ def normalize(value, min_value, max_value):
         normalized_value = (value-min_value) / (max_value-min_value)
     return normalized_value
 
+# Calculating accuracy 
 def acc(row, df):
     min_rmse = df['rmse'].min()
     max_rmse = df['rmse'].max()

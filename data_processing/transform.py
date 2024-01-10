@@ -1,6 +1,15 @@
 from datetime import datetime, timedelta
 import pandas as pd
 
+###############################################
+
+# This file includes code on transforming the M4
+# data-set's time-series in digestable format
+# for the application
+
+###############################################
+
+# Requires M4-info.csv to run 
 info_df = pd.read_csv('../Dataset/M4-info.csv')
 
 def create_datetime_list(starting_date, desired_length):

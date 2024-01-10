@@ -34,17 +34,9 @@ export = 'This is the export file'
 train_file = 'Dataset/Yearly-train.csv'
 test_file = 'Dataset/Yearly-test.csv'
 
-def get_user_file():
-    pre_processing_check_config_object = ConfigParser()
-    pre_processing_check_config_object.read("config.ini")
 
-    #Get the SINGLESCOREINFO section
-    config = pre_processing_check_config_object["USERFILE"]
-    user_dataset_file = config['file_path']
-
-    return user_dataset_file
-
-
+# CONTROLLER
+###########################################################################
 # Printing the evaluation protocol string
 def scoring(predicted, real, method_type, method, elapsed_time_sec, complexity):
     if os.path.exists('session_file.csv'):
@@ -77,6 +69,8 @@ def scoring(predicted, real, method_type, method, elapsed_time_sec, complexity):
     session_file.write(str_to_write)
     session_file.close()
 
+# FORECASTING 
+###########################################################################
 def run_models(module_name, train, test, real, method_type):
     module = importlib.import_module(module_name)
 
@@ -99,9 +93,8 @@ def run_models(module_name, train, test, real, method_type):
 
     return string_to_return
 
-# Creating data to test the functions
+# Creating data to test the functions if the user has not uploaded any
 def import_test_data():
-
     train_df = pd.read_csv(train_file)
     test_df = pd.read_csv(test_file)
 
@@ -110,26 +103,33 @@ def import_test_data():
 
     return train, test
 
+# CONFIG FILE AND PRE-PROCESSING
+###########################################################################
+def get_user_file():
+    pre_processing_check_config_object = ConfigParser()
+    pre_processing_check_config_object.read("config.ini")
+
+    #Get the SINGLESCOREINFO section
+    config = pre_processing_check_config_object["USERFILE"]
+    user_dataset_file = config['file_path']
+
+    return user_dataset_file
+
 def split_user_data():
     user_data_df = pd.read_csv(get_user_file())
-
     # 70-30 split with no fancy means
     split_index = int(0.7 * len(user_data_df))
-
     train = user_data_df[:split_index]
     test = user_data_df[split_index:]
 
     return train, test
 
 def use_user_dataset():
-
     user_dataset_file = get_user_file()
-
     if user_dataset_file == 'empty':
         train, test = import_test_data()
     else:
         train, test = split_user_data()
-
     target_column_name = test.columns[1]
     real = test[target_column_name]
 
@@ -144,7 +144,6 @@ def allowed_file(filename):
 def pre_processing_passed():
     pre_processing_check_config_object = ConfigParser()
     pre_processing_check_config_object.read("config.ini")
-
     #Get the SINGLESCOREINFO section
     config = pre_processing_check_config_object["PREPROCESSING"]
     pre_processing_result = config['passed']
@@ -201,7 +200,7 @@ def reset_config_file():
     with open('config.ini', 'w') as conf:
         config_object.write(conf)
 
-
+# Wrapper here to run the function upon the application initialization
 @app.before_first_request
 def clear_session():
     try:
@@ -225,6 +224,8 @@ def clear_session():
     except:
         print("Session reset failed!")
 
+# ROUTING
+###########################################################################
 @app.route('/')
 def index():
     return render_template('index.html')
@@ -310,9 +311,8 @@ def single_scoring_config():
 
     return jsonify({'message': 'Config file updated!'})
 
-## BUTTON CALLS
+## FORECASTING
 # ======================================================================================================================
-
 # Traditional methods route
 @app.route('/traditional_models', methods=['POST'])
 def traditional_models():
@@ -366,7 +366,8 @@ def naive_methods():
         
 
 
-# EXPORT RESULTS
+# EXPORTS
+###########################################################################
 @app.route('/export_results', methods=['POST'])
 def export_results():
     export_file = open("Exports/output.txt", "w")
@@ -414,7 +415,9 @@ def export_raw_scores():
 def download_file(filename):
     return send_from_directory('Exports', filename, as_attachment=True)
 
+
 # CLEAR RESULTS
+###########################################################################
 @app.route('/clear_results', methods=['POST'])
 def clear_results():
     clear_session()
