@@ -397,6 +397,18 @@ def export_single_scores():
                     'export': render_template_string('<pre>{{ data | safe }}</pre>', data=string_to_return)})
 
 
+@app.route('/raw_results', methods=['POST'])
+def export_raw_scores():
+    shutil.copy("session_file.csv", "Exports/raw_results")
+    shutil.copy("Exports/single_scores.csv", "Exports/raw_results")
+
+    # Compressing results to a single file 
+    # shutil.make_archive(zip_file_path, compress_type, directory_to_zip)
+    shutil.make_archive("Exports/raw_results", 'zip', "Exports/raw_results")
+
+    return jsonify({'result': 'Raw results files successfully created -> Click "Download Raw Result"'})
+
+
 # DOWNLOAD FILE
 @app.route('/Exports/<filename>')
 def download_file(filename):

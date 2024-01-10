@@ -93,6 +93,14 @@
             <button type="button" id="Download_button">Download Single Score</button>
         </a>
     </div>
+
+    <!-- EXPORT RAW Results -->
+    <div class="section-wrapper" id="Raw_results_export">
+        <button onclick="exportResults('raw_results')">Export Raw Results</button>
+        <a href="/Exports/raw_results.zip" download="GFG">
+            <button type="button" id="Download_button">Download Raw Results</button>
+        </a>
+    </div>
     
     <div class="section-wrapper" id="Export_responses">
         <hr>
@@ -285,10 +293,16 @@
                 type: 'POST',
                 url: '/' + functionName,
                 success: function(response) {
-                    document.getElementById('Export_responses').innerHTML += response.result + '<br>';
-                    document.getElementById('result').insertAdjacentHTML('afterbegin', response.export);
-                    console.log("Response: " + response.result);
-                    console.log("Export: " + response.export);
+                    if ('export' in response){
+                        document.getElementById('Export_responses').innerHTML += response.result + '<br>';
+                        document.getElementById('result').insertAdjacentHTML('afterbegin', response.export);
+                        console.log("Response: " + response.result);
+                        console.log("Export: " + response.export);
+                    }
+                    else{
+                        document.getElementById('Export_responses').innerHTML += response.result + '<br>';
+                        console.log("Response: " + response.result);
+                    }
                 },
                 error: function(error) {
                     console.error("Error: " + JSON.stringify(error));
