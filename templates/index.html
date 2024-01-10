@@ -148,7 +148,7 @@
             return;
         }
         else{
-            // For is submitted and the sliders can be referenced via the sliders' name! 
+            // Form is submitted and the sliders can be referenced via the sliders' name! 
             var formData = new FormData(this); 
             e.preventDefault(); 
             $.ajax({
@@ -332,6 +332,7 @@
             });
         }
 
+        // Fetching hover button data 
         fetch("static/traditional.txt")
         .then(response => response.text())
         .then(data => {
