@@ -387,14 +387,14 @@ def export_results():
     export_file.write(export_string)
     export_file.write('\n')
     export_file.close()
-    return jsonify({'result': 'File exported successfully -> Click "Download"'})
+    return jsonify({'result': 'Analytical results file exported successfully, click download"'})
 
 @app.route('/single_scores', methods=['POST'])
 def export_single_scores():
     score()
     df = pd.read_csv("Exports/single_scores.csv")
     string_to_return = tabulate(df, headers='keys', tablefmt="grid")
-    return jsonify({'result': 'Single scores file exported successfully -> Click "Download Single Score"',
+    return jsonify({'result': 'Single scores file exported successfully, click download"',
                     'export': render_template_string('<pre>{{ data | safe }}</pre>', data=string_to_return)})
 
 
@@ -407,7 +407,7 @@ def export_raw_scores():
     # shutil.make_archive(zip_file_path, compress_type, directory_to_zip)
     shutil.make_archive("Exports/raw_results", 'zip', "Exports/raw_results")
 
-    return jsonify({'result': 'Raw results files successfully created -> Click "Download Raw Result"'})
+    return jsonify({'result': 'Raw results files successfully created, click download'})
 
 
 # DOWNLOAD FILE

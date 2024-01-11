@@ -1,8 +1,7 @@
 method,score
-prophet_model,2.28
-mean,9.19
+ets,6.88
+random_walk,9.17
 theta,9.52
-last_value,10.18
-random_walk,11.14
-ets,14.34
-arima,14.85
+mean,9.54
+last_value,10.62
+arima,10.64

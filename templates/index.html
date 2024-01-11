@@ -58,10 +58,8 @@
         </form>
     </div>
 
-    <br><br>
-
     <div class="section-wrapper" id="experiment">
-        <h3 class="Model_title">Experiment</h3>
+        <h3 class="Model_title">Forecasting</h3>
         <div id="Model_buttons">
         <button class='model' id='traditional_model_button' onclick="callFunction('traditional_models')">Traditional methods</button>
         <button class='model' id='ml_model_button' onclick="callFunction('ml_models')">Machine Learning models</button>
@@ -69,28 +67,23 @@
         </div>
     </div>
 
-    <br><br>
 
-    <div class="section-wrapper" id="results">
-        <h3>Results</h3>
-        <button onclick="clearAdditionalElements('clear_results')">Clear session</button>
-    </div>
-
-    <br><br>
-    
-    <!-- EXPORT -->
-    <div class="section-wrapper" id="Measurements_export">
-        <button onclick="exportResults('export_results')">Export Results</button>
-        <a href="/Exports/output.txt" download="GFG">
-            <button type="button" id="Download_button">Download</button>
+    <!-- EVALUATION PROTOCOL -->
+    <div class="section-wrapper" id="eval_protocol">
+        <h3>Evaluation protocol</h3>
+        <button onclick="exportResults('single_scores')">Single score</button>
+        <a href="/Exports/single_scores.txt" download="GFG">
+            <button type="button" id="Download_button">Download in text</button>
         </a>
     </div>
 
-    <!-- EXPORT SINGLE SCORE FILE -->
-    <div class="section-wrapper" id="Single_value_export">
-        <button onclick="exportResults('single_scores')">Export Single Score Results</button>
-        <a href="/Exports/single_scores.txt" download="GFG">
-            <button type="button" id="Download_button">Download Single Score</button>
+    
+    <!-- EXPORT -->
+    <div class="section-wrapper" id="Measurements_export">
+        <h3>Export</h3>
+        <button onclick="exportResults('export_results')">Export Analytical Results</button>
+        <a href="/Exports/output.txt" download="GFG">
+            <button type="button" id="Download_button">Download in text</button>
         </a>
     </div>
 
@@ -103,9 +96,13 @@
     </div>
     
     <div class="section-wrapper" id="Export_responses">
+    </div>
+
+    <div class="section-wrapper" id="clear_session">
+        <h3>Clear Session</h3>
+        <button onclick="clearAdditionalElements('clear_results')">Clear session</button>
         <hr>
     </div>
-    <br><br>
     
 
     <div class="result-wrapper" id="result">
@@ -318,6 +315,7 @@
                 url: '/' + functionName,
                 success: function(response) {
                     console.log("Response: " + response.result);
+                    // Reset messages 
                     var resultDiv = document.getElementById('result');
                     var exportDiv = document.getElementById('Export_responses');
                     var uploadDiv = document.getElementById('upload-status');
@@ -325,6 +323,23 @@
                     resultDiv.innerHTML = '';
                     exportDiv.innerHTML = '';
                     uploadDiv.innerHTML = '';
+
+                    // Reset sliders 
+                    document.getElementById("slider_1_value").innerText = "Accuracy: 5";
+                    document.getElementById("slider_2_value").innerText = "Outliers: 5";
+                    document.getElementById("slider_3_value").innerText = "Shape similarity: 5"
+                    document.getElementById("slider_4_value").innerText = "Execution time: 5"
+                    document.getElementById("slider_5_value").innerText = "Complexity: 5"
+                    document.getElementById("slider_6_value").innerText = "Improvement over naive methods: 5"
+                    document.getElementById("total").innerText = "30";
+
+                    document.getElementById("accuracy_slider").value = "5";
+                    document.getElementById("outliers_slider").value = "5";
+                    document.getElementById("shape_slider").value = "5";
+                    document.getElementById("time_slider").value = "5";
+                    document.getElementById("complexity_slider").value = "5";
+                    document.getElementById("naive_slider").value = "5";
+
                 },
                 error: function(error) {
                     console.error("Error: " + JSON.stringify(error));
