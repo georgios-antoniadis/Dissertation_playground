@@ -1,7 +1,12 @@
 <h1>Evaluation protocol</h1>
-<h2>General results</h2>
+<p>(Accuracy*w1)+(Outliers*w2)+(Naive*w3)+(Time*w4)+(Shape*w5)+(complexity*w6)</p>
+<p>Where w 1 through 6 the corresponding weights for each measurement</p>
+<br>
+<h3>General results</h3>
 <p>The single score attributed to each model is non-quantifiable</p>
-<p>However, a user can expect the following (assuming an equal weighting of 5)</p>
-<p>Any score below 3 is a great score, indicating an accurate, fast and of medium complexity model</p>
-<p>A score between 6 and 10 is average</p>
-<p>Any score below below 11 is bad and models typically do not meet the specified requirements</p>
+<p>However, a user can expect the following (assuming w1,w2,w3,w4,w5,w6 = 5)</p>
+<ol>
+    <li>Any score below 3 is a great score, indicating an accurate, fast and of medium complexity model</li>
+    <li>A score between 6 and 10 is average</li>
+    <li>Any score below below 11 is bad and models typically do not meet the specified requirements</li>
+</ol>

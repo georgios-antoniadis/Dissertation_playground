@@ -37,7 +37,6 @@
         
     </div>
 
-
     <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
     <!-- Navbar -->
@@ -56,14 +55,14 @@
     </script>
 
     <script>
-        fetch("static/Dataset_sample.txt")
+        fetch("static/dataset_sample.txt")
         .then(response => response.text())
         .then(data => {
             // Set the title attribute using the fetched data
             document.getElementById('Dataset_sample').innerHTML = '<pre>' + data + '</pre>';
         })
 
-        fetch("static/using the playground.txt")
+        fetch("static/using_the_playground.txt")
         .then(response => response.text())
         .then(data => {
             // Set the title attribute using the fetched data

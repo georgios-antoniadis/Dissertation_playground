@@ -35,6 +35,11 @@ p {
     text-align: left;
   }
 
+#Total_text{
+  font-weight: bold;
+}
+
+/* WRAPPERS  */
 .section-wrapper{
   margin-left: 25%;
   margin-right: 25%;
@@ -45,6 +50,14 @@ p {
   margin-right: 10%;
 }
 
+.clear-wrapper{
+  margin-left: 25%;
+  margin-right: 25%;
+  align-items: center;
+  text-align: center;
+}
+
+/* MISCHALENEOUS */
 button.model {
   margin-left: 2px;
   margin-right: 2px;
@@ -81,7 +94,6 @@ button.nav-bar-button{
 /*
 SLIDERS
 */
-
 #sliders form {
   display: flex;
   flex-direction: row;
@@ -91,10 +103,43 @@ SLIDERS
 }
 
 #sliders form p {
-  width: 30%; /* Adjust the width as needed */
+  width: 30%; 
   margin: 10px; /* Add some margin between sliders */
 }
 
 #sliders form input {
   width: 15%;
+}
+
+/*
+MODEL BUTTONS
+*/
+#Model_buttons {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#Model_buttons button {
+  width: 30%; 
+  margin: 10px;
+}
+
+
+/*
+EVAL AND EXPORT
+*/
+#eval_and_export {
+  display: flex;
+  flex-direction: row;
+  flex-wrap: wrap;
+  justify-content: space-between;
+  align-items: center;
+}
+
+#eval_and_export .section-wrapper {
+  width: 30%; 
+  margin: 5px;
 }
