@@ -55,14 +55,14 @@
     </script>
 
     <script>
-        fetch("static/dataset_sample.txt")
+        fetch("static/about/dataset_sample.txt")
         .then(response => response.text())
         .then(data => {
             // Set the title attribute using the fetched data
             document.getElementById('Dataset_sample').innerHTML = '<pre>' + data + '</pre>';
         })
 
-        fetch("static/using_the_playground.txt")
+        fetch("static/about/using_the_playground.txt")
         .then(response => response.text())
         .then(data => {
             // Set the title attribute using the fetched data

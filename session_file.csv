@@ -1,4 +1,1 @@
 model,method_type,time_elapsed_sec,complexity,rmse,nme,mae,mse,mape,smape,grubbs,shape_similarity
-predict_last_value,Naive Methods,4.7206878662109375e-05,0,637.47,0.08,532.25,406362.68,0.08,0.08,0,6919.3
-predict_mean,Naive Methods,4.76837158203125e-05,0,968.06,0.13,897.34,937141.41,0.15,0.14,0,11665.41
-predict_random_walk,Naive Methods,0.00011396408081054688,0,512.12,0.04,305.07,262263.93,0.05,0.05,0,2617.75
