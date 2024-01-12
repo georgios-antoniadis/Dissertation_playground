@@ -40,9 +40,11 @@ document.getElementById('sliderForm').addEventListener('submit', function (e) {
             processData: false,
             success: function(response) {
                 console.log(response.message)
+                document.getElementById("Slider_for_submission_result").innerText = "Configuration updated successfully!"
             },
             error: function(response) {
                 console.log(response.message)
+                document.getElementById("Slider_for_submission_result").innerText = "Something went wrong!"
             }
         });
     }
@@ -222,6 +224,8 @@ function clearAdditionalElements(functionName) {
             document.getElementById("time_slider").value = "5";
             document.getElementById("complexity_slider").value = "5";
             document.getElementById("naive_slider").value = "5";
+
+            document.getElementById("Slider_for_submission_result").innerText = " "
 
         },
         error: function(error) {

@@ -55,6 +55,7 @@
 
 
             <p id="Total_text">Total: <span id="total">30</span></p>
+            <p id="Slider_for_submission_result"></p>
             <input type="submit" value="Submit">
         </form>
     </div>
@@ -126,28 +127,24 @@
         fetch("static/hover/traditional.txt")
         .then(response => response.text())
         .then(data => {
-            // Set the title attribute using the fetched data
             document.getElementById('traditional_model_button').title = data;
         })
 
         fetch("static/hover/machine_learning.txt")
         .then(response => response.text())
         .then(data => {
-            // Set the title attribute using the fetched data
             document.getElementById('ml_model_button').title = data;
         })
 
         fetch("static/hover/Naive_method.txt")
         .then(response => response.text())
         .then(data => {
-            // Set the title attribute using the fetched data
             document.getElementById('naive_model_button').title = data;
         })
 
         fetch("static/hover/download.txt")
         .then(response => response.text())
         .then(data => {
-            // Set the title attribute using the fetched data
             document.getElementById('Download_button').title = data;
         })
     </script>
