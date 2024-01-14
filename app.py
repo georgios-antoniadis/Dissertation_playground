@@ -63,8 +63,6 @@ def scoring(predicted, real, method_type, method, elapsed_time_sec, complexity):
         grubbs_test_score = grubbs_score(predicted, real)
     shape_similarity_score = round(dtw(predicted, real),2)
 
-
-
     str_to_write += f"{rmse_score},{nme_score},{mae_score},{mse_score},{mape_score},{smape_score},{grubbs_test_score},{shape_similarity_score}\n"
     session_file.write(str_to_write)
     session_file.close()

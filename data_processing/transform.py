@@ -11,6 +11,7 @@ import pandas as pd
 
 # Requires M4-info.csv to run 
 info_df = pd.read_csv('../Dataset/M4-info.csv')
+info_df = info_df[info_df['SP'] == "Yearly"]
 
 def create_datetime_list(starting_date, desired_length):
     new_date = datetime.strptime(starting_date, '%d-%m-%y %H:%M')
@@ -21,9 +22,15 @@ def create_datetime_list(starting_date, desired_length):
         # Increment the starting_date by the number of years
         new_date = new_date + timedelta(days=365.25)
         # Update the values in the data_df column
-        dates_list.append(new_date.strftime('%d-%m-%y %H:%M'))
-        
-        i+=1
+        try: 
+            dates_list.append(new_date.strftime('%d-%m-%y %H:%M'))
+            i+=1
+
+        except: 
+            print("format wrong!")
+            new_date = datetime.strptime("01-01-86 00:00", '%d-%m-%y %H:%M') 
+            dates_list.append(new_date.strftime('%d-%m-%y %H:%M'))
+            i+=1
 
     return dates_list
 
@@ -35,6 +42,7 @@ def create_df_with_datetimes(df, counter):
     # print(df['V1'][counter])
     
     desired_row= info_df[info_df['M4id'] == timeseries_name]
+    print(f"desired row = {desired_row}")
     starting_date = info_df.loc[desired_row.index[0],'StartingDate']
     
     # starting_date = info_df[info_df['M4id']==timeseries_name]['StartingDate']

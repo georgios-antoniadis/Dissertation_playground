@@ -143,3 +143,12 @@ EVAL AND EXPORT
   width: 30%; 
   margin: 5px;
 }
+
+/* 
+Report 
+*/
+
+#M4_results {
+  margin-left: 15%;
+  margin-right: 15%;
+}

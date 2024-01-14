@@ -58,7 +58,7 @@ def single_score(row, df, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
     outliers = normalize(row['grubbs'], min_grubbs, max_grubbs)
     time = normalize(row['time_elapsed_sec'], min_time, max_time)
     shape_similarity = normalize(row['shape_similarity'], min_shape_similarity, max_shape_similarity)
-    complexity = row['complexity']
+    complexity = row['complexity'] / 10
 
     # Debugging 
     print(f"""
@@ -73,9 +73,11 @@ complexity: {complexity}
 
     total_single_score = round((w_accuracy*accuracy_score),2) \
     + round((w_outliers*outliers),2) \
-    - round((w_shape*shape_similarity),2) \
-    - round((w_time*time),2) \
+    + round((w_shape*shape_similarity),2) \
+    + round((w_time*time),2) \
     + round((w_complexity+complexity),2)
+
+    print(total_single_score)
 
     return total_single_score
 
@@ -123,7 +125,7 @@ def score():
     w_naive = int(scoring_config['naive']) 
 
     # Debugging
-    # print(w_accuracy, w_outliers, w_shape, w_time, w_complexity)
+    print(f"w_accuracy: {w_accuracy}, w_outliers: {w_outliers}, w_shape: {w_shape}, w_time: {w_time}, w_complexity: {w_complexity}, w_naive: {w_naive}")
 
     # Naive methods
     best_naive_method, best_naive_score = find_best_naive_method(df, save_file, w_accuracy, w_outliers, w_shape, w_time, w_complexity)
