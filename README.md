@@ -5,18 +5,22 @@ Traditional vs Machine Learning methods for timeseries forecasting
 It is recommended that you setup a python virtual environment in your system and run the application from inside it.
 
 ## Creating a virtual environment: (Linux - Ubuntu)
-1) sudo apt install python3.8-venv
+1) sudo apt install python3.8-venv (if not installed already)
 2) python3 -m venv dissertation_venv
 3) source dissertation_venv/bin/activate
 
 ## Installing required packages
 Once incide the virtual environment:
-1) pip install -r requirements.txt
+1) Open an interactive terminal
+2) pip install -r requirements.txt
 
 ## Running the application
-1) Open an interactive terminal
+1) Open an interactive terminal, if you haven't already
 2) python app.py
 3) Access the URL printed from a browser
+
+## Dataset
+Your dataset file needs to be in the same directory as app.py
 
 # Dependencies
 The application requires all libraries from requirements.txt to be installed in the virtual python environment
